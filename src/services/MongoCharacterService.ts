@@ -1,7 +1,5 @@
 import { HeroModel } from '../models/Hero'
-import { NPCModel } from '../models/NPC'
 import { HeroSchema } from '../schemas/hero.schema'
-import { NPCSchema } from '../schemas/npc.schema'
 
 function toHero(obj: any) {
   return HeroSchema.parse(obj)
