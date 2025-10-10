@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Создание персонажа</title>
+  <link rel="stylesheet" href="/css/create-character.css" />
+</head>
+<body>
+  <div class="wrap">
+    <h1 class="title">Создание персонажа</h1>
+    <div class="layout">
+      <div class="panel">
+        <div class="hd">Параметры</div>
+        <div class="bd">
+          <div class="section">
+            <div>
+              <label class="small">Имя</label>
+              <input id="name" type="text" placeholder="Введите имя" />
+            </div>
+          </div>
+
+          <div class="section">
+            <div>
+              <label class="small">Пол</label>
+              <select id="sex">
+                <option value="MALE">Мужской</option>
+                <option value="FEMALE">Женский</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="section">
+            <div>
+              <label class="small">Возраст</label>
+              <input id="age" type="number" placeholder="Возраст" />
+            </div>
+          </div>
+
+          <div class="section">
+            <label class="small">Внешность</label>
+            <textarea id="appearance" placeholder="Папирусные свитки, кожаные доспехи, шрамы и приметы..."></textarea>
+          </div>
+
+          <div class="section">
+            <div class="row" style="justify-content:space-between">
+              <div class="pill">Бонусные очки: <span id="pool">10</span></div>
+              <div class="small">Макс. любой стат (распределяемый): 10, базовое 0</div>
+            </div>
+            <div id="stats" class="two" style="margin-top:8px"></div>
+          </div>
+
+          <div class="section">
+            <label class="small">Раса</label>
+            <div id="races" class="two"></div>
+          </div>
+          <div class="section">
+            <label class="small">Класс</label>
+            <div id="classes" class="two"></div>
+          </div>
+
+          <div class="section">
+            <div class="items">
+              <div class="small" style="margin-bottom:6px">Стартовые предметы выбранного класса</div>
+              <div id="items"></div>
+            </div>
+          </div>
+
+          <div style="margin-top:10px; text-align:right">
+            <button id="generate-character-sprite" class="btn" disabled>Сгенерировать спрайт</button>
+          </div>
+          <div style="margin-top:10px; text-align:right">
+            <button id="create-character" class="btn" disabled>Создать персонажа</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="hd">Портрет</div>
+        <div class="bd">
+          <div id="portrait" class="preview">Портрет появится после генерации</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="hd">Итоговые статы</div>
+        <div class="bd">
+          <div id="final" class="final"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/script/create-character.js" defer></script>
+  <script src="/main.js"></script>
+</body>
+</html>
