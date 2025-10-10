@@ -1,0 +1,6 @@
+.claude/
+.idea/
+dist
+node_modules
+public/images/generated/
+.env
