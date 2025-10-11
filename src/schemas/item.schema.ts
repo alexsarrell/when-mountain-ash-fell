@@ -19,7 +19,7 @@ export const ItemSchema = z.object({
   name: z.string(),
   type: z.string().optional(),
   description: z.string().optional(),
-  stats: ItemStatsSchema,
+  stats: ItemStatsSchema.optional().default({}),
 })
 
 export const ItemStateSchema = z.object({

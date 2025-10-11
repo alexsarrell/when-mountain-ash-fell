@@ -7,6 +7,7 @@ export const GameClassSchema = z.object({ id: z.string(), name: z.string(), desc
 export const ItemSchemaLite = z.object({ id: z.string(), name: z.string() })
 
 export const HeroSchema = z.object({
+  _id: z.string(),
   characterName: z.string(),
   age: z.number(),
   race: RaceSchema,
@@ -15,7 +16,7 @@ export const HeroSchema = z.object({
   level: z.number().optional().default(1),
   stats: CharacterStatsSchema,
   inventory: z.array(ItemSchemaLite),
-  equipment: CharacterEquipmentSchema.optional(),
+  equipment: CharacterEquipmentSchema.optional().default({}),
   appearance: z.string(),
   imageUrl: z.string().optional(),
   imageHash: z.string().optional(),

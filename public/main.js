@@ -55,6 +55,23 @@ window.onCharacterCreation = async (body) => {
   }
 }
 
+window.onAction = async (body) => {
+    try {
+        const res = await fetch('/game/action', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        })
+        const responseJson = await res.json()
+        document.getElementById('output').textContent = responseJson.narrative
+        document.getElementById('locImg').setAttribute('src', responseJson.locationImage);
+        console.log("response received", responseJson)
+        if (!res.ok) throw new Error('Action failed')
+    } catch (e) {
+        console.error(e)
+    }
+}
+
 const newGameBtn = document.getElementById('newGameButton')
 if (newGameBtn) newGameBtn.addEventListener('click', () => { window.location.href = 'html/create-character.html' })
 

@@ -1,16 +1,9 @@
 import OpenAI from 'openai'
-import { z } from 'zod'
+import type { ZodTypeAny } from 'zod'
 import {CharacterSex, GameState, StoryResponse, Hero} from '../types'
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import {CLASSES, RACES} from "../data/game.content";
 import { StoryResponseSchema } from '../schemas/storyResponse.schema'
-
-
-
-
-
-// CharacterEquipmentSchema
-
 
 
 function extractJson(text: string): string {
@@ -102,37 +95,63 @@ d20 + модификатор характеристики + бонус влад�
 Если итоговая сумма броска равна или больше DC — действие выполнено.
 Если меньше — неудача, действие не удалось.
 
+Стиль повествования - текстовый, литературный, без смайликов, pow, звёздочек.
+
+Описание персонажа игрока:
 Персонаж: ${character.characterName} (${character.race.name} ${character.class.name}, ${character.age}, ${character.appearance})
 Статы персонажа: ${JSON.stringify(character.stats)}
 Локация: (name: ${gameState.currentLocation.name}, description: ${gameState.currentLocation.description})
 Экипировка: ${JSON.stringify(character.equipment)}
 Инвентарь: ${character.inventory.map((i: any) => i.name).join(', ')}
-Действие игрока: ${action}
 `
+    const storySchemaRaw = zodToJsonSchema(StoryResponseSchema, {
+        name: 'StoryResponse',
+        $refStrategy: 'none'
+    });
+
+    const storySchema = { ...storySchemaRaw }.definitions;
+
+    const history = gameState
+        .history.flatMap(history => [
+            { role: "user", content: history.action },
+            { role: "assistant", content: history.response }
+        ])
 
     let params: any = {
-      model: this.model,
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.7
+        model: this.model,
+        messages: [{ role: 'system', content: prompt }].concat(history).concat({ role: "user", content: action }),
+        temperature: 1
     }
-    if (this.jsonMode) params.response_format = { type: 'json_object' }
+
+    if (this.jsonMode) {
+        if (storySchema) {
+            params.response_format = {
+                type: 'json_schema',
+                    json_schema: {
+                    name: 'StoryResponse',
+                    schema: storySchema.StoryResponse,
+                    strict: false
+                }
+            }
+
+            console.log('Set response format schema', storySchema.StoryResponse)
+        } else {
+            console.log('Cannot generate response format schema, storySchema is null')
+        }
+    }
 
     let resp
     try {
-      resp = await this.openai.chat.completions.create(params)
-    } catch (e) {
-      if (this.jsonMode) {
-        delete params.response_format
         resp = await this.openai.chat.completions.create(params)
-      } else {
+    } catch (e) {
+        console.error('Failed to send completions request', e)
         throw e
-      }
     }
 
     const content = resp.choices[0].message?.content || '{}';
-    console.log("Content")
+    console.log("Response received:", content)
     const jsonText = extractJson(content);
-    console.log("Extracted json text")
+    console.log("Extracted json text:", jsonText)
     const parsed = StoryResponseSchema.safeParse(JSON.parse(jsonText))
     if (!parsed.success) throw new Error('Invalid AI response format')
     return parsed.data as StoryResponse

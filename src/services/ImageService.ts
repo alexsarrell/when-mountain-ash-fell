@@ -89,6 +89,6 @@ export class ImageService {
   }
 
   calculateEquipmentHash(equipment: Record<string, unknown>): string {
-    return crypto.createHash('md5').update(JSON.stringify(equipment)).digest('hex')
+    return crypto.createHash('md5').update(JSON.stringify(equipment ?? {})).digest('hex')
   }
 }

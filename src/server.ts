@@ -22,7 +22,11 @@ async function main() {
     process.env.OPENAI_MODEL || 'just-ai/claude/claude-sonnet-4',
     (process.env.OPENAI_JSON_MODE || 'true') === 'true'
   )
-  const promptAgent = new PromptAgent()
+  const promptAgent = new PromptAgent(
+      process.env.OPENAI_PROMPT_AGENT_MODEL || 'just-ai/claude/claude-sonnet-4',
+      process.env.OPENAI_API_KEY || '',
+      process.env.OPENAI_BASE_URL || undefined,
+  )
   const imageService = new ImageService(
     process.env.NANO_BANANA_API_KEY || '',
     process.env.NANO_BANANA_URL || 'https://caila.io/api/mlpgateway/account/just-ai/model/gemini-nano-banana',

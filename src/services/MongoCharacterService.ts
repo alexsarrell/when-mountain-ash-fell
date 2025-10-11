@@ -1,13 +1,14 @@
 import { HeroModel } from '../models/Hero'
 import { HeroSchema } from '../schemas/hero.schema'
+import {Hero} from "../types";
 
 function toHero(obj: any) {
   return HeroSchema.parse(obj)
 }
 
 export class MongoCharacterService {
-  async createHero(data: any): Promise<any> {
-    const doc = await HeroModel.create({ ...(data as any) })
+  async createHero(data: Hero): Promise<any> {
+    const doc = await HeroModel.create({ ...(data) })
     return toHero(doc.toObject())
   }
 

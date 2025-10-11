@@ -1,8 +1,10 @@
-import {CharacterSex, GameState, Item, Location} from '../types';
+import {CharacterSex, GameState, Hero, Item, Location} from '../types';
 import {randomUUID} from "node:crypto";
 import {MongoCharacterService} from "./MongoCharacterService";
+import {MongoHistoryService} from "./MongoHistoryService";
 
 const mongoCharacterService: MongoCharacterService = new MongoCharacterService()
+const mongoHistoryService: MongoHistoryService = new MongoHistoryService()
 
 export class CharacterService {
 
@@ -11,18 +13,24 @@ export class CharacterService {
   }
 
   async getGameState(characterId: string): Promise<GameState> {
-    return {
-      characterId,
-      currentLocation: { id: randomUUID().toString(), name: 'Village Square', description: 'A bustling square with a fountain', NPCs: [] } as Location,
-      history: [],
-    };
+    return await mongoHistoryService.getGameState(characterId) ?? await mongoHistoryService.createGameState({
+        characterId,
+        currentLocation: { id: randomUUID().toString(), name: 'Village Square', description: 'A bustling square with a fountain', NPCs: [] } as Location,
+        history: [],
+    });
   }
 
-  async saveCharacter(payload: any): Promise<void> {
+  async updateCharacter(payload: Hero): Promise<void> {
+      await mongoCharacterService.updateHero(payload._id, payload)
+  }
+
+  async saveCharacter(payload: Hero): Promise<void> {
       await mongoCharacterService.createHero(payload)
   }
 
-  async saveGameState(state: GameState): Promise<void> {}
+  async saveGameState(state: GameState): Promise<void> {
+      await mongoHistoryService.updateGameState(state)
+  }
 
   mergeItems(inventory: Item[], found?: Item[]): Item[] {
     if (!found?.length) return inventory;

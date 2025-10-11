@@ -14,5 +14,5 @@ export const NPCSchema = z.object({
   inventory: z.array(ItemSchema),
   equipment: CharacterEquipmentSchema,
   appearance: z.string(),
-  attitude: z.number()
+  attitude: z.number().describe("Отношение к игроку")
 }).describe('NPC описание для StoryResponse: race/class — ID, не объекты')

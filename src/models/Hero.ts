@@ -1,11 +1,12 @@
-import mongoose, { Schema, model } from 'mongoose'
+import mongoose, { model } from 'mongoose'
 import { z } from 'zod'
-import { generateRawSchema } from 'zod-to-mongoose'
+import { extendZod, zodSchema } from '@zodyac/zod-mongoose'
 import { HeroSchema as HeroZod } from '../schemas/hero.schema'
+
+extendZod(z)
 
 type HeroDB = z.infer<typeof HeroZod>
 
-const heroDef = generateRawSchema({ schema: HeroZod })
-const HeroMongooseSchema = new Schema<HeroDB>(heroDef as any, { timestamps: true, collection: 'heroes' })
+const HeroMongooseSchema = zodSchema(HeroZod)
 
-export const HeroModel = mongoose.models.Hero || model<HeroDB>('Hero', HeroMongooseSchema)
+export const HeroModel = mongoose.models.Hero || model<HeroDB>('Hero', HeroMongooseSchema, 'heroes')

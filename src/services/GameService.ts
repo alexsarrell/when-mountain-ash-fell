@@ -37,7 +37,7 @@ export class GameService {
       character.inventory = character.inventory.filter((i: Item) => !lostIds.has(i.id))
     }
 
-    if (storyResponse.isNewLocation) {
+    if (true) {
       const npcs: NPCDto[] = storyResponse.NPCs || []
       gameState.currentLocation = {
           id: randomUUID().toString(),
@@ -46,7 +46,7 @@ export class GameService {
           NPCs: npcs,
       } as Location
       console.log("New location achieved", storyResponse.location)
-      const locationPrompt = this.promptAgent.createLocationPrompt(gameState.currentLocation)
+      const locationPrompt = await this.promptAgent.createLocationPrompt(character, gameState.currentLocation, storyResponse)
       try {
         console.log('svc: generating location image')
         gameState.currentLocation.locationImageUrl = await this.imageService.generateLocationImage(locationPrompt)
@@ -57,7 +57,7 @@ export class GameService {
     }
 
     if (storyResponse.equipmentChanged) {
-      const newHash = this.imageService.calculateEquipmentHash(character.equipment)
+      const newHash = this.imageService.calculateEquipmentHash(character.equipment ?? {})
       console.log('svc: equipment hash', { newHash, prevHash: character.imageHash })
       if (newHash !== character.imageHash) {
         const charPrompt = this.promptAgent.createCharacterPrompt(character)
@@ -75,11 +75,11 @@ export class GameService {
 
     gameState.history.push({
       action,
-      response: storyResponse.narrative,
+      response: JSON.stringify(storyResponse),
       timestamp: new Date()
     })
 
-    await this.characterService.saveCharacter(character)
+    await this.characterService.updateCharacter(character)
     await this.characterService.saveGameState(gameState)
 
     return {

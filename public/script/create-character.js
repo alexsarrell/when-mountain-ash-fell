@@ -1,3 +1,10 @@
+function uuidv4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
 // ============ Динамическое состояние ============
 const state = {
     pool: 10,
@@ -387,7 +394,10 @@ document.getElementById('create-character').addEventListener('click', () => {
 
     console.log(`starting items ${state.cls?.startingItems || []}`)
 
+    const id = uuidv4()
+
     const payload = {
+        _id: id,
         characterName: document.getElementById('name').value.trim(),
         sex: document.getElementById('sex').value === 'FEMALE' ? 1 : 0,
         age: state.age,
@@ -408,6 +418,11 @@ document.getElementById('create-character').addEventListener('click', () => {
     if (window.onCharacterCreation) {
         window.onCharacterCreation(payload).then(r => r)
     }
+
+    sessionStorage.setItem('characterId', id.toString())
+    setCookie('characterId', id.toString(), '/', 3600000)
+
+    window.location.href = 'game.html'
 })
 
 // ============ Запуск ============
