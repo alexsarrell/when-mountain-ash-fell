@@ -62,7 +62,7 @@ Characters on location: ${JSON.stringify(characters)}
 Добавляй в промпт описание внешности игрока только если по твоему, режиссерскому взгляду, он должен быть изображен на итоговой картинке. Не забывай описывать подходящие позы, профиль, если нужно
 
 Художественное описание обстановки вокруг игрока: ${storyResponse.narrative}
-fantasy retro-RPG (like daggerfall, but detailed) game environment, detailed background, 
+fantasy 32bit pixel retro-RPG (like daggerfall, but more detailed) game environment, detailed background, 
 atmospheric lighting, game art style
 `.trim();
 

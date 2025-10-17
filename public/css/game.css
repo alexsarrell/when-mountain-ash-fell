@@ -1,0 +1,217 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: ui-serif, Georgia, serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: radial-gradient(1200px 800px at 20% 0%, #3b2a1e, #1f140c);
+    color: #2c1c0f;
+    padding: 10px;
+}
+
+.images {
+    flex: 1;
+    display: flex;
+    gap: 20px;
+    margin: 10px 0;
+    min-height: 0;
+}
+
+.images img {
+    flex: 1;
+    max-width: 50%;
+    object-fit: contain;
+    border: 2px solid #a98255;
+    border-radius: 12px;
+    background-color: #ede3cf;
+    box-shadow: inset 0 0 40px #d5c29f;
+}
+
+p {
+    margin-bottom: 10px;
+    color: #f6f0e6;
+    font-size: 14px;
+    text-shadow: 0 1px 0 #000;
+}
+
+#form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+}
+
+#action {
+    flex: 1;
+    height: 60px;
+    padding: 10px;
+    border: 1px solid #b48a5a;
+    border-radius: 8px;
+    resize: vertical;
+    font-family: inherit;
+    background: #fffaf0;
+    color: #3a2819;
+}
+
+#send-action {
+    padding: 0 20px;
+    background: linear-gradient(#c58a45, #9f6a2a);
+    border: 1px solid #6f4316;
+    color: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow: 0 1px 0 #fff inset;
+}
+
+#send-action:hover {
+    background: linear-gradient(#b67a3e, #8c5b2e);
+}
+
+h3 {
+    margin: 10px 0 5px 0;
+    color: #ff5e13;
+    text-shadow: 0 1px 0 #000;
+}
+
+#output {
+    padding: 12px;
+    background: linear-gradient(#f0e6d4, #e4d5b6);
+    border: 2px solid #a98255;
+    border-radius: 12px;
+    min-height: 60px;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    max-height: 120px;
+    color: #2c1c0f;
+    box-shadow: inset 0 0 40px #d5c29f;
+}
+:root{
+    --paper:#ede3cf; --paper2:#e1d2b3; --ink:#2c1c0f; --sep:#a98255;
+    --leather:#5a3c25; --bronze:#b67a3e; --accent:#8c5b2e; --cloth:#6d4b2e;
+}
+
+html,body {
+    height:100%;
+    margin:0;
+    padding:0;
+}
+
+body {
+    font-family: ui-serif, Georgia, serif;
+    background: radial-gradient(1200px 800px at 20% 0%, #3b2a1e, #1f140c);
+    color: var(--paper);
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 300px 1fr 300px;
+    grid-template-rows: auto 1fr;
+    gap: 20px;
+}
+
+p {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+    padding: 10px;
+    background: linear-gradient(#f0e6d4, #e4d5b6);
+    border: 2px solid var(--sep);
+    border-radius: 12px;
+    color: var(--ink);
+}
+
+#form {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+    background: linear-gradient(#f0e6d4, #e4d5b6);
+    border: 2px solid var(--sep);
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 40px;
+}
+
+#action {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #b48a5a;
+    border-radius: 8px;
+    background: #fffaf0;
+    color: #3a2819;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+    box-sizing: border-box;
+}
+
+#send-action {
+    background: linear-gradient(#c58a45, #9f6a2a);
+    border: 1px solid #6f4316;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+h3 {
+    grid-column: 3;
+    grid-row: 1;
+    margin: 0;
+    color: var(--paper);
+}
+
+#output {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    align-self: start;
+    margin-top: 40px;
+    background: linear-gradient(#f0e6d4, #e4d5b6);
+    border: 2px solid var(--sep);
+    border-radius: 12px;
+    padding: 15px;
+    min-height: 200px;
+    color: var(--ink);
+}
+
+.images {
+    grid-column: 1 / span 3;
+    grid-row: 2;
+    display: grid;
+    grid-template-columns: 300px 1fr 300px;
+    gap: 20px;
+}
+
+#charImg {
+    grid-column: 1;
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border: 3px solid var(--sep);
+    border-radius: 12px;
+}
+
+#locImg {
+    grid-column: 2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 3px solid var(--sep);
+    border-radius: 12px;
+}
+
+
+/*git checkout -b game-page-css*/
+
+/*git add .*/
+
+/*git commit -m */
+
+/*git push origin*/
