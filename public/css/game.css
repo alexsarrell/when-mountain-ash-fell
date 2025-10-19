@@ -36,8 +36,6 @@ p {
     grid-column: 2;
     grid-row: 1;
     align-self: end;
-    background: linear-gradient(#f0e6d4, #e4d5b6);
-    border: 2px solid var(--sep);
     border-radius: 12px;
     padding: 15px;
     display: flex;
@@ -45,31 +43,28 @@ p {
     align-items: flex-end;
 }
 #action {
-    width: 100%;
+    width: 70%;
     padding: 12px;
-    border: 1px solid #b48a5a;
-    border-radius: 8px;
-    background: #fffaf0;
-    color: #3a2819;
-    font-family: inherit;
+    margin-left: 100px;
+    margin-bottom: 40px;
+    border: none;
     resize: vertical;
     min-height: 80px;
     box-sizing: border-box;
-}
+    outline:none;
+    font-family: "Century Gothic";
+    background-color: rgba(0, 0, 0, 0);
 
-#send-action {
-    background: linear-gradient(#c58a45, #9f6a2a);
-    border: 1px solid #6f4316;
-    color: #fff;
-    padding: 12px 24px;
-    border-radius: 10px;
-    cursor: pointer;
+}
+#textImg {
+    grid-row: 1;
+    grid-column: 2;
+    width: 100%;
+    padding: 12px;
     font-family: inherit;
-    font-size: 14px;
-    height: fit-content;
-    margin-bottom: 20px;
+    resize: vertical;
+    max-height: 170px;
 }
-
 h3 {
     grid-column: 3;
     grid-row: 1;
@@ -108,7 +103,7 @@ h3 {
 
 #output {
     position: absolute;
-    bottom: 25px;
+    bottom: 80px;
     left: 320px;
     right: 315px;
     border: 2px solid var(--sep);
