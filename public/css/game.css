@@ -52,7 +52,8 @@ p {
     min-height: 80px;
     box-sizing: border-box;
     outline:none;
-    font-family: "Century Gothic";
+    font-family: 'Mistral', cursive;
+    font-size: 30px;
     background-color: rgba(0, 0, 0, 0);
 
 }
@@ -103,7 +104,7 @@ h3 {
 
 #output {
     position: absolute;
-    bottom: 80px;
+    bottom: 0px;
     left: 320px;
     right: 315px;
     border: 2px solid var(--sep);
@@ -112,6 +113,53 @@ h3 {
     background: linear-gradient(#f0e6d4, #e4d5b6);
     color: var(--ink);
     min-height: 50px;
+    max-height: 100px;
     z-index: 3;
     opacity: 0.2;
+}
+#inventory
+{
+    background: #a98255;
+    height: 60px;
+    width: 60px;
+    grid-column: 1;
+    grid-row: 2;
+    margin-left: 5px;
+    margin-top: 50px;
+}
+.bronze {
+    width: 60px;
+    height: 60px;
+    padding: 0;
+    background: white;
+    color: #333;
+    border: none;
+    border-radius: 8px;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.bronze::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(
+            145deg,
+            #8b4513,
+            #cd7f32,
+            #e6b17e,
+            #cd7f32,
+            #8b4513
+    );
+    border-radius: 10px;
+    z-index: -1;
+    box-shadow: 0 4px 15px rgba(205, 127, 50, 0.4);
 }
