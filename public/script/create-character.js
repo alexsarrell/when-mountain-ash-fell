@@ -396,6 +396,14 @@ document.getElementById('create-character').addEventListener('click', () => {
 
     const id = uuidv4()
 
+		const startingItems =
+			(state.cls?.startingItems || [])
+				.map(id => ({
+					id,
+					name: state.content.items[id].name
+				}))
+				.filter(Boolean)
+
     const payload = {
         _id: id,
         characterName: document.getElementById('name').value.trim(),

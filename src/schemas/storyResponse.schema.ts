@@ -1,33 +1,39 @@
-import { z } from 'zod'
-import { ItemStateSchema } from './item.schema'
-import { NPCSchema } from './npc.schema'
+import { z } from "zod";
+import { ItemStateSchema } from "./item.schema";
+import { NPCSchema } from "./npc.schema";
+import { CharacterEquipmentSchema } from "./character.schema";
 
-export const StoryResponseSchema = z.object({
-  type: z.enum(['event']).describe(`
+export const StoryResponseSchema = z
+  .object({
+    type: z
+      .enum(["event"])
+      .describe(
+        `
       в случае, если действие игрока повело за собой какое-то событие 
       (например, игрок сделал бросок на восприятие и ему выпало нужное число на 
       кубике - и заметил капканы-ловушки, замаскированные в полу), или в любом 
-      другом случае, где действие игрока влечёт за собой событие, возвращай event`).default('event'),
-  narrative: z.string(),
-  location: z.string().describe(`
+      другом случае, где действие игрока влечёт за собой событие, возвращай event`,
+      )
+      .default("event"),
+    narrative: z.string(),
+    location: z.string().describe(`
       Локация, в которой в данный момент находится игрок
   `),
-  locationDescription: z.string().describe(`
+    locationDescription: z.string().describe(`
       Описание локации, в которой находится игрок
   `),
-  NPCs: z.array(NPCSchema).describe(`
+    NPCs: z.array(NPCSchema).describe(`
       Если в локации ты описываешь каких-либо существ (людей, трактирщиков, торговца, кого угодно, с кем игрок может взаимодействовать), предоставь информацию об этом NPC в своём ответе
   `),
-  isNewLocation: z.boolean().describe(`
-      Проставляй true в самом начале игры или в случае, если произошло визуальное событие - если игрок увидел кого-то нового (кто-то вошёл в комнату), или увидел новый предмет или любое другое событие. false оставляй только для статичных сцен, где не происходит ничего нового кроме разговора.
-  `),
-  effect: z.array(z.string()).optional().describe(`
+    effect: z.array(z.string()).optional().describe(`
       Эффекты события - например урон здоровью, или повышение какого-то стата в случае, например, выпитого зелья или проведённого ритуала
   `),
-  itemState: ItemStateSchema.optional().describe(`
+    itemState: ItemStateSchema.optional().describe(`
       В случае, если действие игрока привело к получению или потере предметов (например, если игрок купил или нашел новый предмет - добавляй предметы в эту схему). Если предмет был утерян или потрачен, добавляй его в itemLost
   `),
-  equipmentChanged: z.boolean().optional().describe(`
-      В случае, если действие игрока привело к смене обмундирования (например он взял в руки меч вместо лука или надел другую броню) проставляй здесь true
-  `),
-}).strict()
+    currentEquipment: CharacterEquipmentSchema.optional().describe(`
+      Текущее обмундирование персонажа (предметы в активных слотах). Если обмундирование меняется - (например игрок берёт в руки двуручный меч вместо посоха) не забывай проставлять соответствующие слоты здесь - убирать старый предмет (из правой или левой руки, с пальца или с пояса).
+      Двуручные мечи и другие предметы занимают оба слота - и правый и левый. Одноручные - один.   
+    `),
+  })
+  .strict();

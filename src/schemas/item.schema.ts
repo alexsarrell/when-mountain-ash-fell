@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from "zod";
 
 export const ItemStatsSchema = z.object({
   damage: z.number().optional(),
@@ -12,15 +12,15 @@ export const ItemStatsSchema = z.object({
   attractiveness: z.number().optional(),
   stealth: z.number().optional(),
   perception: z.number().optional(),
-})
+});
 
 export const ItemSchema = z.object({
   id: z.string(),
   name: z.string(),
-  type: z.string().optional(),
-  description: z.string().optional(),
-  stats: ItemStatsSchema.optional().default({}),
-})
+  type: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
+  stats: ItemStatsSchema.optional().nullable(),
+});
 
 export const ItemStateSchema = z.object({
   itemsFound: z.array(ItemSchema).optional().describe(`
@@ -29,4 +29,4 @@ export const ItemStateSchema = z.object({
   itemsLost: z.array(ItemSchema).optional().describe(`
         В случае, если действие игрока привело к потере предмета, проставляй его схему здесь
     `),
-})
+});

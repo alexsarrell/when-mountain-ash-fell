@@ -1,10 +1,24 @@
-import { z } from 'zod'
-import { CharacterStatsSchema, CharacterEquipmentSchema } from './character.schema'
+import { z } from "zod";
+import {
+  CharacterStatsSchema,
+  CharacterEquipmentSchema,
+} from "./character.schema";
 
-export const RaceSchema = z.object({ id: z.string(), name: z.string(), description: z.string(), statBonuses: z.any() })
-export const GameClassSchema = z.object({ id: z.string(), name: z.string(), description: z.string(), baseStats: z.any(), startingItems: z.array(z.string()) })
+export const RaceSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  statBonuses: z.any(),
+});
+export const GameClassSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  baseStats: z.any(),
+  startingItems: z.array(z.string()),
+});
 
-export const ItemSchemaLite = z.object({ id: z.string(), name: z.string() })
+export const ItemSchemaLite = z.object({ id: z.string(), name: z.string() });
 
 export const HeroSchema = z.object({
   _id: z.string(),
@@ -19,7 +33,8 @@ export const HeroSchema = z.object({
   equipment: CharacterEquipmentSchema.optional().default({}),
   appearance: z.string(),
   imageUrl: z.string().optional(),
+  publicImageUrl: z.string().optional(),
   imageHash: z.string().optional(),
-})
+});
 
-export type Hero = z.infer<typeof HeroSchema>
+export type Hero = z.infer<typeof HeroSchema>;

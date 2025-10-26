@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Dice Roller - Blue Green Metal</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #ffffff;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #dice-box {
+            width: 600px;
+            height: 400px;
+            margin: 20px auto;
+            border: 1px solid #333;
+        }
+        #result {
+            font-size: 48px;
+            margin: 20px;
+        }
+        button {
+            font-size: 18px;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background: #0a4d4d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #0d6666;
+        }
+    </style>
+</head>
+<body>
+<h1>🎲 Dice Roller</h1>
+
+<div id="dice-box"></div>
+<div id="result">Выберите кубик</div>
+
+<button id="btn-d4">D4</button>
+<button id="btn-d6">D6</button>
+<button id="btn-d8">D8</button>
+<button id="btn-d10">D10</button>
+<button id="btn-d12">D12</button>
+<button id="btn-d20">D20</button>
+
+<script type="module">
+    import DiceBox from 'https://unpkg.com/@3d-dice/dice-box-threejs@0.0.6/dist/dice-box-threejs.es';
+
+    const Box = new DiceBox("#dice-box", {
+        light_intensity: 1,
+        gravity_multiplier: 600,
+        baseScale: 100,
+        strength: 2,
+        assetPath: "/assets/",
+        theme: "theme-blue-green-metal",
+        onRollComplete: (results) => {
+            console.log(`I've got results :>> `, results);
+        }
+    });
+
+    const rollWithPreset = (base) => {
+        return Box.roll(base);
+    };
+
+    document.getElementById('btn-d4').addEventListener('click', () => rollWithPreset('1d4@4'));
+    document.getElementById('btn-d6').addEventListener('click', () => rollWithPreset('1d6@4'));
+    document.getElementById('btn-d8').addEventListener('click', () => rollWithPreset('1d8@4'));
+    document.getElementById('btn-d10').addEventListener('click', () => rollWithPreset('1d10@4'));
+    document.getElementById('btn-d12').addEventListener('click', () => rollWithPreset('1d12@4'));
+    document.getElementById('btn-d20').addEventListener('click', () => rollWithPreset('1d20@4'));
+</script>
+</body>
+</html>

@@ -1,12 +1,14 @@
-import mongoose, { model } from 'mongoose'
-import { z } from 'zod'
-import { extendZod, zodSchema } from '@zodyac/zod-mongoose'
-import { GameStateSchema as GameStateZod } from '../schemas/gameState.schema'
+import mongoose, { model } from "mongoose";
+import { z } from "zod";
+import { extendZod, zodSchema } from "@zodyac/zod-mongoose";
+import { GameStateSchema as GameStateZod } from "../schemas/gameState.schema";
 
-extendZod(z)
+extendZod(z);
 
-type GameStateDB = z.infer<typeof GameStateZod>
+type GameStateDB = z.infer<typeof GameStateZod>;
 
-const GameStateMongooseSchema = zodSchema(GameStateZod)
+const GameStateMongooseSchema = zodSchema(GameStateZod);
 
-export const GameStateModel = mongoose.models.GameState || model<GameStateDB>('GameState', GameStateMongooseSchema, 'gameState')
+export const GameStateModel =
+  mongoose.models.GameState ||
+  model<GameStateDB>("GameState", GameStateMongooseSchema, "gameState");
