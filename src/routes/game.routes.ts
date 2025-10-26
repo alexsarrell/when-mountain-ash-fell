@@ -9,6 +9,14 @@ import {
 
 const router = Router();
 
+router.get("/character", (req, res) => {
+  /**
+   * TODO Достаем из req.body characterId и делаем запрос в MongoDB getCharacter. Дальше из результата достаём инвентарь и equipment и возвращаем на фронтенд
+   * const characterService = req.app.locals.characterService as CharacterService
+   * const hero = await characterService.getCharacter(characterId)
+   */
+})
+
 router.get("/content", (req, res) => {
   res.json({
     races: RACES,

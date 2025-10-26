@@ -136,11 +136,12 @@ export class ImageService {
   async generateCharacterImage(
     prompt: string,
     character: Hero | undefined = undefined,
+    previousImageUrl: string
   ): Promise<string | undefined> {
     return retry(
       async (attempt) => {
         console.log("Generate character image attempt", attempt);
-        const messages = await this.buildMessages(prompt, character?.imageUrl);
+        const messages = await this.buildMessages(prompt, previousImageUrl);
         if (character) {
           character.publicImageUrl = messages.publicImageUrl;
         }

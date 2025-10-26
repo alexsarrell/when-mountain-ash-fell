@@ -89,19 +89,19 @@ export class GameService {
         newHash,
         prevHash: character.imageHash,
       });
-
-      if (newHash !== character.imageHash && character.imageHash) {
+      if (newHash !== character.imageHash) {
         character.equipment = storyResponse.currentEquipment;
         const charPrompt = this.promptAgent.toCharacterImagePrompt(
           this.promptAgent.createCharacterPrompt(character),
         );
         try {
-          const prevImageUrl = await this.buildImageUrl(character);
+          const prevImageUrl = `public${await this.buildImageUrl(character)}`;
           console.log("Previous image url", prevImageUrl);
           console.log("Generate image prompt", charPrompt);
           character.imageUrl = await this.imageService.generateCharacterImage(
             charPrompt,
             character,
+            prevImageUrl,
           );
           console.log("svc: character image url", character.imageUrl);
         } catch (e) {
@@ -122,21 +122,20 @@ export class GameService {
 
     return {
       narrative: storyResponse.narrative,
-      characterImage: character.imageUrl,
+      characterImage: await this.buildImageUrl(character),
       locationImage: gameState.currentLocation.locationImageUrl,
       location: gameState.currentLocation,
     };
   }
 
   private async buildImageUrl(character: Hero): Promise<string> {
-    return `public${
-      character.imageUrl
+    return character.imageUrl
         ? decodeURIComponent(character.imageUrl)
         : (() => {
-            throw new Error(
+          throw new Error(
               `Image URL is required for character ${character}.`,
-            );
-          })()
-    }`;
+          );
+        })()
+
   }
 }
