@@ -467,6 +467,7 @@ h3 {
 #inventoryDialog {
     width: 700px;
     height: 500px;
+    resize: none;
     border: 3px solid #8b6b4d;
     border-radius: 12px;
     background: linear-gradient(135deg, #2c1e15 0%, #1a120b 100%);
@@ -521,6 +522,7 @@ h3 {
     word-break: break-word;
     overflow: hidden;
     min-height: 0;
+
 }
 
 .inventory-item:hover {
@@ -556,12 +558,255 @@ h3 {
     font-size: 12px;
     font-weight: bold;
 }
-
-.inventory-portrait-image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+#inventory-portrait {
+    left: 90px;
+    bottom:20px;
+    top: 70px;
+    width: 140px;
+    height: 300px;
+    overflow: hidden;
+    position: relative;
 }
+
+#inventory-portrait img {
+    width: 300px; /* исходная ширина */
+    height: 300px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%); /* центрирует обрезку */
+}
+/*#inventory-portrait {*/
+/*    height: 300px;*/
+/*    width: 100px;*/
+/*    border-color: #ff5e13;*/
+/*    background-color: #ff5e13;*/
+/*    position: absolute;*/
+/*    left: 100px;*/
+/*    bottom:20px;*/
+/*    top: 110px;*/
+/*}*/
+/*.inventory-portrait-image {*/
+/*    width: 300px;*/
+/*    height: 300px;*/
+/*    overflow: hidden;*/
+/*    top: 110px;*/
+/*    position: absolute;*/
+/*    left: 20px;*/
+/*    bottom:20px;*/
+/*    !*object-fit: contain;*!*/
+/*}*/
+
+/*#FirstWeapon{position: relative;background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%); border: 2px solid #6d5238; border-radius: 6px; height: 45px; width: 45px; align-items: center; justify-content: center; text-align: center; font-size: 10px; padding: 5px; cursor: pointer; transition: all 0.2s ease; word-break: break-word; overflow: hidden; min-height: 0;}*/
+/*#Armor{position: relative;background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%); border: 2px solid #6d5238; border-radius: 6px; height: 45px; width: 45px; align-items: center; justify-content: center; text-align: center; font-size: 10px; padding: 5px; cursor: pointer; transition: all 0.2s ease; word-break: break-word; overflow: hidden; min-height: 0;}*/
+/*#SecondWeapon{position: relative;background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%); border: 2px solid #6d5238; border-radius: 6px; height: 45px; width: 45px; align-items: center; justify-content: center; text-align: center; font-size: 10px; padding: 5px; cursor: pointer; transition: all 0.2s ease; word-break: break-word; overflow: hidden; min-height: 0;}*/
+/*#FirstRing{position: relative;background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%); border: 2px solid #6d5238; border-radius: 6px; height: 45px; width: 45px; align-items: center; justify-content: center; text-align: center; font-size: 10px; padding: 5px; cursor: pointer; transition: all 0.2s ease; word-break: break-word; overflow: hidden; min-height: 0;}*/
+/*#SecondRing{position: relative;background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%); border: 2px solid #6d5238; border-radius: 6px; height: 45px; width: 45px; align-items: center; justify-content: center; text-align: center; font-size: 10px; padding: 5px; cursor: pointer; transition: all 0.2s ease; word-break: break-word; overflow: hidden; min-height: 0;}*/
+/*#Helmet{position: relative;background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%); border: 2px solid #6d5238; border-radius: 6px; height: 45px; width: 45px; align-items: center; justify-content: center; text-align: center; font-size: 10px; padding: 5px; cursor: pointer; transition: all 0.2s ease; word-break: break-word; overflow: hidden; min-height: 0;}*/
+/*#Boots{position: relative;background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%); border: 2px solid #6d5238; border-radius: 6px; height: 45px; width: 45px; align-items: center; justify-content: center; text-align: center; font-size: 10px; padding: 5px; cursor: pointer; transition: all 0.2s ease; word-break: break-word; overflow: hidden; min-height: 0;}*/
+/*#Necklace{position: relative;background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%); border: 2px solid #6d5238; border-radius: 6px; height: 45px; width: 45px; align-items: center; justify-content: center; text-align: center; font-size: 10px; padding: 5px; cursor: pointer; transition: all 0.2s ease; word-break: break-word; overflow: hidden; min-height: 0;}*/
+/*#Belt{position: relative;background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%); border: 2px solid #6d5238; border-radius: 6px; height: 45px; width: 45px; align-items: center; justify-content: center; text-align: center; font-size: 10px; padding: 5px; cursor: pointer; transition: all 0.2s ease; word-break: break-word; overflow: hidden; min-height: 0;}*/
+/*#Gloves{position: relative;background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%); border: 2px solid #6d5238; border-radius: 6px; height: 45px; width: 45px; align-items: center; justify-content: center; text-align: center; font-size: 10px; padding: 5px; cursor: pointer; transition: all 0.2s ease; word-break: break-word; overflow: hidden; min-height: 0;}*/
+#FirstWeapon {
+    position: absolute;
+    background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%);
+    border: 2px solid #6d5238;
+    border-radius: 6px;
+    height: 45px;
+    width: 45px;
+    align-items: center;
+    justify-content: center;
+    top: 233px;
+    left: 35px;
+    text-align: center;
+    font-size: 10px;
+    padding: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    word-break: break-word;
+    overflow: hidden;
+    min-height: 0;
+}
+
+#Armor {
+    position: absolute;
+    background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%);
+    border: 2px solid #6d5238;
+    border-radius: 6px;
+    height: 45px;
+    width: 45px;
+    align-items: center;
+    top: 220px;
+    left: 258px;
+    justify-content: center;
+    text-align: center;
+    font-size: 10px;
+    padding: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    word-break: break-word;
+    overflow: hidden;
+    min-height: 0;
+}
+
+#SecondWeapon {
+    position: absolute;
+    background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%);
+    border: 2px solid #6d5238;
+    border-radius: 6px;
+    height: 45px;
+    width: 45px;
+    top: 306px;
+    left: 35px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 10px;
+    padding: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    word-break: break-word;
+    overflow: hidden;
+    min-height: 0;
+}
+
+#FirstRing {
+    position: absolute;
+    background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%);
+    border: 2px solid #6d5238;
+    border-radius: 6px;
+    height: 45px;
+    width: 45px;
+    align-items: center;
+    justify-content: center;
+    top: 87px;
+    left: 35px;
+    text-align: center;
+    font-size: 10px;
+    padding: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    word-break: break-word;
+    overflow: hidden;
+    min-height: 0;
+}
+
+#SecondRing {
+    position: absolute;
+    background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%);
+    border: 2px solid #6d5238;
+    border-radius: 6px;
+    height: 45px;
+    width: 45px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    top: 160px;
+    left: 35px;
+    font-size: 10px;
+    padding: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    word-break: break-word;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/*#Helmet {*/
+/*    position: relative;*/
+/*    background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%);*/
+/*    border: 2px solid #6d5238;*/
+/*    border-radius: 6px;*/
+/*    height: 45px;*/
+/*    width: 45px;*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    text-align: center;*/
+/*    font-size: 10px;*/
+/*    padding: 5px;*/
+/*    cursor: pointer;*/
+/*    transition: all 0.2s ease;*/
+/*    word-break: break-word;*/
+/*    overflow: hidden;*/
+/*    min-height: 0;*/
+/*}*/
+
+#Boots {
+    position: absolute;
+    background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%);
+    border: 2px solid #6d5238;
+    border-radius: 6px;
+    height: 45px;
+    width: 45px;
+    top: 400px;
+    left: 145px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 10px;
+    padding: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    word-break: break-word;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/*#Necklace {*/
+/*    position: relative;*/
+/*    background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%);*/
+/*    border: 2px solid #6d5238;*/
+/*    border-radius: 6px;*/
+/*    height: 45px;*/
+/*    width: 45px;*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    text-align: center;*/
+/*    font-size: 10px;*/
+/*    padding: 5px;*/
+/*    cursor: pointer;*/
+/*    transition: all 0.2s ease;*/
+/*    word-break: break-word;*/
+/*    overflow: hidden;*/
+/*    min-height: 0;*/
+/*}*/
+
+/*#Belt {*/
+/*    position: relative;*/
+/*    background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%);*/
+/*    border: 2px solid #6d5238;*/
+/*    border-radius: 6px;*/
+/*    height: 45px;*/
+/*    width: 45px;*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    text-align: center;*/
+/*    font-size: 10px;*/
+/*    padding: 5px;*/
+/*    cursor: pointer;*/
+/*    transition: all 0.2s ease;*/
+/*    word-break: break-word;*/
+/*    overflow: hidden;*/
+/*    min-height: 0;*/
+/*}*/
+
+/*#Gloves {*/
+/*    position: relative;*/
+/*    background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%);*/
+/*    border: 2px solid #6d5238;*/
+/*    border-radius: 6px;*/
+/*    height: 45px;*/
+/*    width: 45px;*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    text-align: center;*/
+/*    font-size: 10px;*/
+/*    padding: 5px;*/
+/*    cursor: pointer;*/
+/*    transition: all 0.2s ease;*/
+/*    word-break: break-word;*/
+/*    overflow: hidden;*/
+/*    min-height: 0;*/
+/*}*/
 
 .bronze {
     width: 60px;
