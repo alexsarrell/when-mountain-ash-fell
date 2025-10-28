@@ -74,6 +74,21 @@ window.onAction = async (body) => {
     }
 }
 
+window.getInventory = async (body) => {
+     try {
+         console.log('Get inventory request received with body', body)
+         const res = await fetch(`/game/character/${body.characterId}`, {
+             method: 'GET',
+             headers: {'Content-Type': 'application/json'}
+         })
+         const responseJson = await res.json()
+
+         if (!res.ok) throw new Error('Get inventory failed')
+         return responseJson;
+     } catch (e) {
+         console.error(e)
+    }
+ }
 /**
  * TODO window.getInventory
  * GET запрос на сервер в теле которого передается characterId -> { characterId: ... }
@@ -85,10 +100,6 @@ window.onAction = async (body) => {
  *
  *         отправляем запрос, ждем результат, отображаем результат в html и css
  */
-
-document.getElementById('send-action').addEventListener('click', function() {
-    document.getElementById('action').value = '';
-});
 const newGameBtn = document.getElementById('newGameButton')
 if (newGameBtn) newGameBtn.addEventListener('click', () => {
     window.location.href = 'html/create-character.html'

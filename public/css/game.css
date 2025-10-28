@@ -464,6 +464,104 @@ h3 {
     cursor: pointer;
     position: relative;
 }
+#inventoryDialog {
+    width: 700px;
+    height: 500px;
+    border: 3px solid #8b6b4d;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #2c1e15 0%, #1a120b 100%);
+    padding: 15px;
+    color: #e8d5b5;
+    font-family: 'Arial', sans-serif;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+    box-sizing: border-box;
+}
+
+#inventoryDialog::backdrop
+{
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.inventory-grid
+{
+    display: grid;
+    grid-template-columns: 330px 330px;
+    grid-template-rows: 250px 200px;
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+}
+.items-grid
+{
+    grid-column: 2;
+    grid-row: 2;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 1px;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+.inventory-item {
+    background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%);
+    border: 2px solid #6d5238;
+    border-radius: 6px;
+    display: flex;
+    height: 45px;
+    width: 45px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 10px;
+    padding: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    word-break: break-word;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.inventory-item:hover {
+    border-color: #b8946c;
+    box-shadow: 0 0 10px rgba(184, 148, 108, 0.3);
+}
+
+.inventory-item.empty
+{
+    background: rgba(58, 42, 29, 0.2);
+    border: 2px dashed #6d5238;
+    cursor: default;
+}
+
+.inventory-item.empty:hover {
+    border-color: #6d5238;
+    box-shadow: none;
+}
+#CloseDialog{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #3a2a1d 0%, #2c1e15 100%);
+    border: 2px solid #6d5238;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e8d5b5;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.inventory-portrait-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
 
 .bronze {
     width: 60px;
