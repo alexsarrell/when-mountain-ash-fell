@@ -12,18 +12,19 @@ export const CharacterStatsSchema = z.object(
   [K in StatKey]: z.ZodNumber;
 }>;
 
+const ItemSchemaLite = z.object({ id: z.string(), name: z.string() });
+
 export const CharacterEquipmentSchema = z
   .object({
-    weapon1: z.string().optional().describe("Оружие в правой руке"),
-    weapon2: z.string().optional().describe("Оружие в левой руке"),
-    armor: z.string().optional().describe("Броня"),
-    helmet: z.string().optional().describe("Шлем"),
-
-    belt: z.string().optional().describe("Ремень"),
-    necklace: z.string().optional().describe("Медальон"),
-    ring1: z.string().optional().describe("Кольцо на правой руке"),
-    ring2: z.string().optional().describe("Кольцо на левой руке"),
-    boots: z.string().optional().describe("Ботинки"),
-    gloves: z.string().optional().describe("Перчатки"),
+    weapon1: ItemSchemaLite.describe("Оружие в правой руке"),
+    weapon2: ItemSchemaLite.describe("Оружие в левой руке"),
+    armor: ItemSchemaLite.describe("Броня"),
+    helmet: ItemSchemaLite.describe("Шлем"),
+    belt: ItemSchemaLite.describe("Ремень"),
+    necklace: ItemSchemaLite.describe("Медальон"),
+    ring1: ItemSchemaLite.describe("Кольцо на правой руке"),
+    ring2: ItemSchemaLite.describe("Кольцо на левой руке"),
+    boots: ItemSchemaLite.describe("Ботинки"),
+    gloves: ItemSchemaLite.describe("Перчатки"),
   })
   .describe("Экипировка персонажа");

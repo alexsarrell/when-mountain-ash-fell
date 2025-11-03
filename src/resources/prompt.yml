@@ -72,9 +72,11 @@ prompt:
     Инвентарь: {{ character_inventory }}
   image-generator: ""
   character: |-
-    Full-body RPG character portrait,
+    Full-body RPG character portrait, anime-style,
     Medieval city background, retro style,
     High-contrast, crisp pixels,
+    
+    Описание персонажа:
     Name: {{ character_name }},
     Sex: {{ character_sex }},
     Race: {{ character_race }},
@@ -82,12 +84,16 @@ prompt:
     Age: {{ character_age }},
     Appearance: {{ character_appearance }},
     Stats: {{ character_stats }},
-    Equipment: {{ character_equipment }},
-
-    Обращай внимание на статы. Чем ближе сила к 10 - тем накачаннее персонаж, чем выше привлекательность тем красивее и наоборот. Чем ближе внешний параметр к нулю, тем он хуже.
+    Equipment: {{ character_equipment }}
+    Не отображай элементы игрового интерфейса на картинке, только самого персонажа.
+    
+    Character should be depicted in full-height from head to toe
+    
+    Все объекты из equipment должны быть надеты на персонажа и отображены.
   characterImage: |-
     {{ character_description }}
-    Update current character based on his new equipment.
+    Take off these items from character: {{ take_off_items }}
+    Take on these items on character: {{ take_on_items }}
   prompter: |-
     Ты - агент, генерирующий промпты для моделей по генерации изображений.
     Предметная область, с которой ты работаешь - генерация изображений (first person view игрока, а также пейзажей, локаций и т.п.) для RPG DND-like игры.
@@ -100,12 +106,10 @@ prompt:
     Имя локации: {{ location_name }}
     Описание локации: {{ location_description }}, 
     Персонажи на локации: {{ characters_on_location }}
-    Внешность игрока: {{ hero_appearance }}
     Художественное описание обстановки вокруг игрока: {{ narrative }}
-    Обмундирование персонажа: {{ character_equipment }}
 
-    В случае, если персонаж игрока с кем-то общается, располагай его и собеседников в соответствующих позах - смотрящих друг на друга
     Если сцена описывает что-то, что можно воспринять легко-эротическими, старайся описывать это так, чтобы идея осталась понятной, но чтобы картинка не была отбракована цензурой генератора изображений. Не упоминай интимности сцены в итоговом промпте, иначе картинка точно не сгенерируется.
 
-    stylised fantasy hight-res (no very pixelize) 32-bit pixel retro-RPG (like daggerfall, but more detailed) game environment, detailed background, 
-    atmospheric lighting, game art style
+    К каждому запросу к генератору изображений прикрепляется изображение персонажа. Когда описываешь сцены с участием персонажа, не забывай просить опираться на внешность персонажа с картинки. Очень важно - если на локации находится несколько персонажей, то и их тоже необходимо изобразить (нужно не только героя с картинки изобразить)
+    
+    stylised fantasy little-pixelized game environment, detailed background, atmospheric lighting, game art style

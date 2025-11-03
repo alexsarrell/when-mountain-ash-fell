@@ -2,7 +2,14 @@ import { StoryAgent } from "../agents/StoryAgent";
 import { PromptAgent } from "../agents/PromptAgent";
 import { ImageService } from "./ImageService";
 import { CharacterService } from "./CharacterService";
-import { StoryResponse, Location, NPCDto, Item, Hero } from "../types";
+import {
+  StoryResponse,
+  Location,
+  NPCDto,
+  Item,
+  Hero,
+  CharacterEquipment,
+} from "../types";
 import { randomUUID } from "node:crypto";
 
 export class GameService {
@@ -37,7 +44,6 @@ export class GameService {
     );
     console.log("svc: storyResponse", {
       items: storyResponse.itemState?.itemsFound?.length || 0,
-      equipment: storyResponse.currentEquipment,
     });
 
     if (storyResponse.itemState?.itemsFound?.length) {
@@ -71,44 +77,19 @@ export class GameService {
     );
     try {
       console.log("svc: generating location image");
+      const prevImageUrl = `public${await this.buildImageUrl(character)}`;
       gameState.currentLocation.locationImageUrl =
-        await this.imageService.generateLocationImage(locationPrompt);
+        await this.imageService.generateLocationImage(
+          locationPrompt,
+          character,
+          prevImageUrl,
+        );
       console.log(
         "svc: location image url",
         gameState.currentLocation.locationImageUrl,
       );
     } catch (e) {
       console.error("Location image generation failed", e);
-    }
-
-    if (storyResponse.currentEquipment) {
-      const newHash = this.imageService.calculateEquipmentHash(
-        storyResponse.currentEquipment ?? {},
-      );
-      console.log("svc: equipment hash", {
-        newHash,
-        prevHash: character.imageHash,
-      });
-      if (newHash !== character.imageHash) {
-        character.equipment = storyResponse.currentEquipment;
-        const charPrompt = this.promptAgent.toCharacterImagePrompt(
-          this.promptAgent.createCharacterPrompt(character),
-        );
-        try {
-          const prevImageUrl = `public${await this.buildImageUrl(character)}`;
-          console.log("Previous image url", prevImageUrl);
-          console.log("Generate image prompt", charPrompt);
-          character.imageUrl = await this.imageService.generateCharacterImage(
-            charPrompt,
-            character,
-            prevImageUrl,
-          );
-          console.log("svc: character image url", character.imageUrl);
-        } catch (e) {
-          console.error("Character image generation failed", e);
-        }
-        character.imageHash = newHash;
-      }
     }
 
     gameState.history.push({
@@ -128,14 +109,54 @@ export class GameService {
     };
   }
 
+  async regenerateCharacterImage(
+    character: Hero,
+    newEquipment: CharacterEquipment,
+  ): Promise<string> {
+    const newHash = this.imageService.calculateEquipmentHash(newEquipment);
+    const charPrompt = this.promptAgent.characterImageRegenerationPrompt(
+      character,
+      newEquipment,
+    );
+    const prevImageUrl = `public${await this.buildImageUrl(character)}`;
+    console.log("Previous image url", prevImageUrl);
+    console.log("Generate image prompt", charPrompt);
+    character.imageUrl = await this.imageService.generateCharacterImage(
+      charPrompt,
+      character,
+      prevImageUrl,
+    );
+    console.log("svc: character image url", character.imageUrl);
+    character.imageHash = newHash;
+    await this.characterService.updateCharacter(character);
+    return character.imageUrl!;
+  }
+
   private async buildImageUrl(character: Hero): Promise<string> {
     return character.imageUrl
-        ? decodeURIComponent(character.imageUrl)
-        : (() => {
-          throw new Error(
-              `Image URL is required for character ${character}.`,
-          );
-        })()
-
+      ? decodeURIComponent(character.imageUrl)
+      : (() => {
+          throw new Error(`Image URL is required for character ${character}.`);
+        })();
   }
 }
+
+/**
+ *     if (storyResponse.currentEquipment) {
+ *       const newHash = this.imageService.calculateEquipmentHash(
+ *         storyResponse.currentEquipment ?? {},
+ *       );
+ *       console.log("svc: equipment hash", {
+ *         newHash,
+ *         prevHash: character.imageHash,
+ *       });
+ *       if (newHash !== character.imageHash) {
+ *         character.equipment = storyResponse.currentEquipment;
+ *         try {
+ *           await this.regenerateCharacterImage(character);
+ *         } catch (e) {
+ *           console.error("Character image generation failed", e);
+ *         }
+ *       }
+ *     }
+ */

@@ -1,4 +1,4 @@
-import { Hero, Location, StoryResponse } from "../types";
+import { CharacterEquipment, Hero, Location, StoryResponse } from "../types";
 import {
   ChatCompletionService,
   ChatRequestParams,
@@ -20,64 +20,26 @@ export class PromptAgent {
     const fields = [
       [
         "Оружие в правой руке",
-        character?.equipment?.weapon1 && character.equipment.weapon1.trim()
-          ? character.equipment.weapon1
-          : notEquipped,
+        character?.equipment?.weapon1?.name?.trim() || notEquipped,
       ],
       [
         "Оружие в левой руке",
-        character?.equipment?.weapon2 && character.equipment.weapon2.trim()
-          ? character.equipment.weapon2
-          : notEquipped,
+        character?.equipment?.weapon2?.name?.trim() || notEquipped,
       ],
-      [
-        "Броня",
-        character?.equipment?.armor && character.equipment.armor.trim()
-          ? character.equipment.armor
-          : notEquipped,
-      ],
-      [
-        "Шлем",
-        character?.equipment?.helmet && character.equipment.helmet.trim()
-          ? character.equipment.helmet
-          : notEquipped,
-      ],
-      [
-        "Ремень",
-        character?.equipment?.belt && character.equipment.belt.trim()
-          ? character.equipment.belt
-          : notEquipped,
-      ],
-      [
-        "Медальон",
-        character?.equipment?.necklace && character.equipment.necklace.trim()
-          ? character.equipment.necklace
-          : notEquipped,
-      ],
+      ["Броня", character?.equipment?.armor?.name?.trim() || notEquipped],
+      ["Шлем", character?.equipment?.helmet?.name?.trim() || notEquipped],
+      ["Ремень", character?.equipment?.belt?.name?.trim() || notEquipped],
+      ["Медальон", character?.equipment?.necklace?.name?.trim() || notEquipped],
       [
         "Кольцо на правой руке",
-        character?.equipment?.ring1 && character.equipment.ring1.trim()
-          ? character.equipment.ring1
-          : notEquipped,
+        character?.equipment?.ring1?.name?.trim() || notEquipped,
       ],
       [
         "Кольцо на левой руке",
-        character?.equipment?.ring2 && character.equipment.ring2.trim()
-          ? character.equipment.ring2
-          : notEquipped,
+        character?.equipment?.ring2?.name?.trim() || notEquipped,
       ],
-      [
-        "Ботинки",
-        character?.equipment?.boots && character.equipment.boots.trim()
-          ? character.equipment.boots
-          : notEquipped,
-      ],
-      [
-        "Перчатки",
-        character?.equipment?.gloves && character.equipment.gloves.trim()
-          ? character.equipment.gloves
-          : notEquipped,
-      ],
+      ["Ботинки", character?.equipment?.boots?.name?.trim() || notEquipped],
+      ["Перчатки", character?.equipment?.gloves?.name?.trim() || notEquipped],
     ];
 
     const result = fields
@@ -95,11 +57,41 @@ export class PromptAgent {
       .replace("{{ character_equipment }}", JSON.stringify(result));
   }
 
-  toCharacterImagePrompt(prompt: string): string {
-    return PROMPT_CONFIGURATION.prompt.characterImage.replace(
-      "{{ character_description }}",
-      prompt,
-    );
+  characterImageRegenerationPrompt(
+    character: Hero,
+    newEquipment: CharacterEquipment,
+  ): string {
+    const slots = [
+      ...new Set([
+        ...Object.keys(character.equipment || {}),
+        ...Object.keys(newEquipment || {}),
+      ]),
+    ] as (keyof CharacterEquipment)[];
+
+    const takeOffItems: string[] = [];
+    const takeOnItems: string[] = [];
+
+    for (const slot of slots) {
+      const prevItem = character.equipment?.[slot];
+      const newItem = newEquipment?.[slot];
+
+      if (prevItem?.id !== newItem?.id) {
+        if (prevItem?.name) {
+          takeOffItems.push(prevItem.name);
+        }
+        if (newItem?.name) {
+          takeOnItems.push(newItem.name);
+        }
+      }
+    }
+
+    const takeOffItemsNames = takeOffItems.join(", ");
+    const takeOnItemsNames = takeOnItems.join(", ");
+
+    return PROMPT_CONFIGURATION.prompt.characterImage
+      .replace("{{ character_description }}", character.appearance)
+      .replace("{{ take_off_items }}", takeOffItemsNames)
+      .replace("{{ take_on_items }}", takeOnItemsNames);
   }
 
   async createLocationPrompt(

@@ -34,6 +34,36 @@ export const RACES: Race[] = [
     description: "Могучие воины",
     statBonuses: { strength: 3, intelligence: -2, agility: 0 },
   },
+  {
+    id: "tiefling",
+    name: "Тифлинг",
+    description: "Потомки демонов с харизмой и огненной магией",
+    statBonuses: { strength: 0, intelligence: 2, agility: 1 },
+  },
+  {
+    id: "gnome",
+    name: "Гном",
+    description: "Маленькие изобретатели и иллюзионисты",
+    statBonuses: { strength: -2, intelligence: 3, agility: 1 },
+  },
+  {
+    id: "succubus",
+    name: "Суккуб",
+    description: "Соблазнительные демоны с магией очарования",
+    statBonuses: { strength: -1, intelligence: 2, agility: 2 },
+  },
+  {
+    id: "dwarf",
+    name: "Дворф",
+    description: "Крепкие горные жители, мастера кузнечного дела",
+    statBonuses: { strength: 2, intelligence: 0, agility: -1 },
+  },
+  {
+    id: "hobbit",
+    name: "Хоббит",
+    description: "Низкорослые и ловкие любители комфорта",
+    statBonuses: { strength: -2, intelligence: 1, agility: 3 },
+  },
 ];
 
 // ============================================

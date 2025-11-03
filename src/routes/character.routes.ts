@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { PROMPT_CONFIGURATION } from "../config/PromptProperties";
+import { CharacterEquipment } from "../types";
 
 const router = Router();
 
@@ -18,6 +19,7 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     const { characterService } = req.app.locals;
+    req.body.imageUrl = req.body.imageUrl.replaceAll("%2F", "/");
     console.log("Create character request", req.body);
     await characterService.saveCharacter(req.body);
     res.json({ ok: true });
@@ -58,6 +60,54 @@ router.post("/generate-image", async (req, res) => {
       error: "Character image generation error",
       message: err.message,
     });
+  }
+});
+
+router.post("/sprite/regenerate", async (req, res) => {
+  try {
+    const { characterId, newEquipment } = req.body as {
+      characterId: string;
+      newEquipment: CharacterEquipment;
+    };
+    const { characterService, gameService } = req.app.locals;
+    const character = await characterService.getCharacter(characterId);
+    if (!character) {
+      return res.status(404).json({ error: "Character not found" });
+    }
+    const imageUrl = await gameService.regenerateCharacterImage(
+      character,
+      newEquipment,
+    );
+    res.json({ imageUrl });
+  } catch (err: any) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "Image generation error", message: err.message });
+  }
+});
+
+router.patch("/:characterId/equipment", async (req, res) => {
+  try {
+    const { characterId } = req.params;
+    const newEquipment = req.body as CharacterEquipment;
+    const { characterService, gameService } = req.app.locals;
+    const character = await characterService.getCharacter(characterId);
+    if (!character) {
+      return res.status(404).json({ error: "Character not found" });
+    }
+    const imageUrl = await gameService.regenerateCharacterImage(
+      character,
+      newEquipment,
+    );
+    character.equipment = { ...character.equipment, ...newEquipment };
+    await characterService.updateCharacter(character);
+    res.json({ character, imageUrl });
+  } catch (err: any) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "Equipment update error", message: err.message });
   }
 });
 

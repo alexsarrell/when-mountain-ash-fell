@@ -136,7 +136,7 @@ export class ImageService {
   async generateCharacterImage(
     prompt: string,
     character: Hero | undefined = undefined,
-    previousImageUrl: string
+    previousImageUrl: string,
   ): Promise<string | undefined> {
     return retry(
       async (attempt) => {
@@ -158,11 +158,16 @@ export class ImageService {
     );
   }
 
-  async generateLocationImage(prompt: string): Promise<string | undefined> {
+  async generateLocationImage(
+    prompt: string,
+    character: Hero,
+    previousImageUrl: string,
+  ): Promise<string | undefined> {
     return retry(
       async (attempt) => {
         console.log("Attempt generate location image", attempt);
-        const messages = await this.buildMessages(prompt);
+        const messages = await this.buildMessages(prompt, previousImageUrl);
+        character.publicImageUrl = messages.publicImageUrl;
         const res = await this.generate("location", messages.messages);
         if (res === undefined) {
           throw Error("Image result is undefined");

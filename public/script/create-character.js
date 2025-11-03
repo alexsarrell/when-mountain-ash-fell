@@ -414,12 +414,19 @@ document.getElementById('create-character').addEventListener('click', () => {
         stats: statsObj,
         level: 1,
         appearance: document.getElementById('appearance').value.trim(),
-        inventory: (state.cls?.startingItems || [])
-            .map(id => ({
-                id,
-                name: state.content.items[id].name
-            }))
-            .filter(Boolean),
+        inventory: startingItems,
+	      equipment: {
+		      weapon1: { id: "id1", name: "name1" },
+		      weapon2: { id: "id2", name: "name1" },
+		      armor: { id: "id3", name: "name1" },
+		      helmet: { id: "id4", name: "name1" },
+		      belt: { id: "id5", name: "name1" },
+		      necklace: { id: "id6", name: "name1" },
+		      ring1: { id: "id7", name: "name1" },
+		      ring2: { id: "id8", name: "name1" },
+		      boots: { id: "id9", name: "name1" },
+		      gloves: { id: "id10", name: "name1" },
+	      },
         imageUrl: getCookie('imageUrl')
     }
 

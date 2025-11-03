@@ -30,7 +30,7 @@ export const HeroSchema = z.object({
   level: z.number().optional().default(1),
   stats: CharacterStatsSchema,
   inventory: z.array(ItemSchemaLite),
-  equipment: CharacterEquipmentSchema.optional().default({}),
+  equipment: CharacterEquipmentSchema,
   appearance: z.string(),
   imageUrl: z.string().optional(),
   publicImageUrl: z.string().optional(),
