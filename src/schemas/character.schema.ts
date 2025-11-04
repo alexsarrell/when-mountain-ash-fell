@@ -12,18 +12,26 @@ export const CharacterStatsSchema = z.object(
   [K in StatKey]: z.ZodNumber;
 }>;
 
-const ItemSchemaLite = z.object({ id: z.string(), name: z.string() });
+export const ItemSchemaLite = z.object({ id: z.string(), name: z.string() });
 
 export const CharacterEquipmentSchema = z
   .object({
-    weapon1: ItemSchemaLite.optional().nullable().describe("Оружие в правой руке"),
-    weapon2: ItemSchemaLite.optional().nullable().describe("Оружие в левой руке"),
+    weapon1: ItemSchemaLite.optional()
+      .nullable()
+      .describe("Оружие в правой руке"),
+    weapon2: ItemSchemaLite.optional()
+      .nullable()
+      .describe("Оружие в левой руке"),
     armor: ItemSchemaLite.optional().nullable().describe("Броня"),
     helmet: ItemSchemaLite.optional().nullable().describe("Шлем"),
     belt: ItemSchemaLite.optional().nullable().describe("Ремень"),
     necklace: ItemSchemaLite.optional().nullable().describe("Медальон"),
-    ring1: ItemSchemaLite.optional().nullable().describe("Кольцо на правой руке"),
-    ring2: ItemSchemaLite.optional().nullable().describe("Кольцо на левой руке"),
+    ring1: ItemSchemaLite.optional()
+      .nullable()
+      .describe("Кольцо на правой руке"),
+    ring2: ItemSchemaLite.optional()
+      .nullable()
+      .describe("Кольцо на левой руке"),
     boots: ItemSchemaLite.optional().nullable().describe("Ботинки"),
     gloves: ItemSchemaLite.optional().nullable().describe("Перчатки"),
     legs: ItemSchemaLite.optional().nullable().describe("Штаны"),

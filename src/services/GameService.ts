@@ -2,15 +2,29 @@ import { StoryAgent } from "../agents/StoryAgent";
 import { PromptAgent } from "../agents/PromptAgent";
 import { ImageService } from "./ImageService";
 import { CharacterService } from "./CharacterService";
+import { MongoItemService } from "./MongoItemService";
 import {
-  StoryResponse,
+  CharacterEquipment,
+  Hero,
+  Item,
   Location,
   NPCDto,
-  Item,
-  Hero,
-  CharacterEquipment,
+  StoryResponse,
 } from "../types";
 import { randomUUID } from "node:crypto";
+
+export type SSEEvent =
+  | { type: "dice_roll"; dice: string; count: number; result: number }
+  | {
+      type: "narrative";
+      narrative: string;
+      location: string;
+      locationDescription: string;
+    }
+  | { type: "location_image"; url: string }
+  | { type: "character_image"; url: string }
+  | { type: "error"; message: string }
+  | { type: "done" };
 
 export class GameService {
   constructor(
@@ -20,8 +34,12 @@ export class GameService {
     private characterService: CharacterService,
   ) {}
 
-  async processPlayerAction(characterId: string, action: string) {
-    console.log("svc: processPlayerAction", {
+  async processPlayerActionSSE(
+    characterId: string,
+    action: string,
+    emit: (event: SSEEvent) => void,
+  ): Promise<void> {
+    console.log("svc: processPlayerActionSSE", {
       characterId,
       actionLen: action?.length,
     });
@@ -41,6 +59,9 @@ export class GameService {
       action,
       character,
       gameState,
+      (dice, count, result) => {
+        emit({ type: "dice_roll", dice, count, result });
+      },
     );
     console.log("svc: storyResponse", {
       items: storyResponse.itemState?.itemsFound?.length || 0,
@@ -61,7 +82,6 @@ export class GameService {
         (i: Item) => !lostIds.has(i.id),
       );
 
-      // Также удаляем из equipment
       for (const slot in character.equipment) {
         const equippedItem =
           character.equipment[slot as keyof CharacterEquipment];
@@ -79,30 +99,13 @@ export class GameService {
       NPCs: npcs,
     } as Location;
     console.log("New location achieved", storyResponse.location);
-    const locationPrompt = await this.promptAgent.createLocationPrompt(
-      character,
-      gameState.currentLocation,
-      action,
-      storyResponse,
-    );
-    try {
-      const prevImageUrl = `public${await this.buildImageUrl(character)}`;
-      console.log(
-        `svc: generating location image with character ${prevImageUrl}`,
-      );
-      gameState.currentLocation.locationImageUrl =
-        await this.imageService.generateLocationImage(
-          locationPrompt,
-          character,
-          prevImageUrl,
-        );
-      console.log(
-        "svc: location image url",
-        gameState.currentLocation.locationImageUrl,
-      );
-    } catch (e) {
-      console.error("Location image generation failed", e);
-    }
+
+    emit({
+      type: "narrative",
+      narrative: storyResponse.narrative,
+      location: storyResponse.location,
+      locationDescription: storyResponse.locationDescription,
+    });
 
     gameState.history.push({
       action,
@@ -113,22 +116,92 @@ export class GameService {
     await this.characterService.updateCharacter(character);
     await this.characterService.saveGameState(gameState);
 
-    return {
-      narrative: storyResponse.narrative,
-      characterImage: await this.buildImageUrl(character),
-      locationImage: gameState.currentLocation.locationImageUrl,
-      location: gameState.currentLocation,
-    };
+    await Promise.all([
+      (async () => {
+        try {
+          const locationPrompt = await this.promptAgent.createLocationPrompt(
+            character,
+            gameState.currentLocation,
+            action,
+            storyResponse,
+          );
+          const prevImageUrl = `public${await this.buildImageUrl(character)}`;
+          console.log(
+            `svc: generating location image with character ${prevImageUrl}`,
+          );
+          gameState.currentLocation.locationImageUrl =
+            await this.imageService.generateLocationImage(
+              locationPrompt,
+              character,
+              prevImageUrl,
+            );
+          console.log(
+            "svc: location image url",
+            gameState.currentLocation.locationImageUrl,
+          );
+          await this.characterService.saveGameState(gameState);
+          console.log(
+            "svc: emitting location_image event",
+            gameState.currentLocation.locationImageUrl,
+          );
+          const imageUrl = gameState.currentLocation.locationImageUrl;
+          if (!imageUrl) {
+            throw new Error("Location image URL should be not null");
+          }
+          emit({
+            type: "location_image",
+            url: imageUrl,
+          });
+        } catch (e) {
+          console.error("Location image generation failed", e);
+        }
+      })(),
+    ]).catch((err) => console.error("Image generation error:", err));
   }
 
   async regenerateCharacterImage(
     character: Hero,
-    newEquipment: CharacterEquipment,
+    equippedItemIds: string[] = [],
+    unequippedItemIds: string[] = [],
   ): Promise<string> {
-    const newHash = this.imageService.calculateEquipmentHash(newEquipment);
-    const charPrompt = this.promptAgent.characterImageRegenerationPrompt(
+    console.log("Regenerate character image", {
+      equippedItemIds,
+      unequippedItemIds,
+      inventoryIds: character.inventory.map((i) => i.id),
+      equipmentIds: Object.values(character.equipment)
+        .filter((item) => item != null)
+        .map((i) => i!.id),
+    });
+
+    const itemService = new MongoItemService();
+
+    const equippedItemsLite = Object.values(character.equipment)
+      .filter((item) => item != null && equippedItemIds.includes(item.id))
+      .map((item) => item!);
+
+    const equippedItemsFull = await Promise.all(
+      equippedItemsLite.map(async (lite) => {
+        const full = await itemService.getItemById(lite.id);
+        if (!full) {
+          throw new Error(`Item not found by ID ${lite.id}`);
+        }
+        return full;
+      }),
+    );
+
+    const unequippedItems = character.inventory.filter((item) =>
+      unequippedItemIds.includes(item.id),
+    );
+
+    console.log("Found items", {
+      equippedItems: equippedItemsFull.map((i) => i.name),
+      unequippedItems: unequippedItems.map((i) => i.name),
+    });
+
+    const charPrompt = this.promptAgent.characterImageRegenerationPromptByItems(
       character,
-      newEquipment,
+      equippedItemsFull,
+      unequippedItems.map((i) => i.name),
     );
     const prevImageUrl = `public${await this.buildImageUrl(character)}`;
     console.log("Previous image url", prevImageUrl);
@@ -139,7 +212,9 @@ export class GameService {
       prevImageUrl,
     );
     console.log("svc: character image url", character.imageUrl);
-    character.imageHash = newHash;
+    character.imageHash = this.imageService.calculateEquipmentHash(
+      character.equipment,
+    );
     await this.characterService.updateCharacter(character);
     return character.imageUrl!;
   }

@@ -13,7 +13,7 @@ export class MongoItemService {
   }
 
   async getItemById(id: string): Promise<Item | null> {
-    const obj = await ItemModel.findById(id).lean();
+    const obj = await ItemModel.findOne({ id }).lean();
     return obj ? toItem(obj) : null;
   }
 

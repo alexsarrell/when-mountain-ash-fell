@@ -13,6 +13,7 @@
 <button id="chat-toggle" class="bronze hidden" type="button">
     <span style="font-size: 24px;">💬</span>
 </button>
+<div id="dice-box" style="width: 600px; height: 400px;"></div>
 <div class="chat-container">
     <div class="chat-collapse-btn"></div>
     <div id="chat-messages" class="chat-messages"></div>
@@ -57,6 +58,26 @@
         </div>
     </div>
 </dialog>
+<script type="module">
+    import DiceBox from 'https://unpkg.com/@3d-dice/dice-box-threejs@0.0.6/dist/dice-box-threejs.es';
+
+    const Box = new DiceBox("#dice-box", {
+        light_intensity: 1,
+        gravity_multiplier: 600,
+        baseScale: 100,
+        strength: 2,
+        assetPath: "/assets/",
+        theme: "theme-blue-green-metal",
+        onRollComplete: (results) => {
+            console.log('Dice roll complete:', results);
+        }
+    });
+
+    Box.initialize().then(() => {
+        window.diceBox = Box;
+        console.log('DiceBox initialized in HTML');
+    }).catch(e => console.error('DiceBox init failed:', e));
+</script>
 <script src="/script/game.js"></script>
 <script src="/main.js"></script>
 </body>

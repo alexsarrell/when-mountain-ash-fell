@@ -65,16 +65,20 @@
         }
     });
 
-    const rollWithPreset = (base) => {
-        return Box.roll(base);
-    };
+    Box.initialize().then(() => {
+        console.log('DiceBox initialized');
+        
+        const rollWithPreset = (base) => {
+            return Box.roll(base);
+        };
 
-    document.getElementById('btn-d4').addEventListener('click', () => rollWithPreset('1d4@4'));
-    document.getElementById('btn-d6').addEventListener('click', () => rollWithPreset('1d6@4'));
-    document.getElementById('btn-d8').addEventListener('click', () => rollWithPreset('1d8@4'));
-    document.getElementById('btn-d10').addEventListener('click', () => rollWithPreset('1d10@4'));
-    document.getElementById('btn-d12').addEventListener('click', () => rollWithPreset('1d12@4'));
-    document.getElementById('btn-d20').addEventListener('click', () => rollWithPreset('1d20@4'));
+        document.getElementById('btn-d4').addEventListener('click', () => rollWithPreset('1d4@4'));
+        document.getElementById('btn-d6').addEventListener('click', () => rollWithPreset('1d6@4'));
+        document.getElementById('btn-d8').addEventListener('click', () => rollWithPreset('1d8@4'));
+        document.getElementById('btn-d10').addEventListener('click', () => rollWithPreset('1d10@4'));
+        document.getElementById('btn-d12').addEventListener('click', () => rollWithPreset('1d12@4'));
+        document.getElementById('btn-d20').addEventListener('click', () => rollWithPreset('1d20@4'));
+    }).catch(e => console.error('DiceBox init failed:', e));
 </script>
 </body>
 </html>

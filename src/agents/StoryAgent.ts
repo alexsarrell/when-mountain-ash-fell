@@ -32,6 +32,7 @@ export class StoryAgent {
     action: string,
     character: Hero,
     gameState: GameState,
+    onDiceRoll?: (dice: string, count: number, result: number) => void,
   ): Promise<StoryResponse> {
     const prompt = PROMPT_CONFIGURATION.prompt.narrator
       .replace("{{ character_name }}", character.characterName)
@@ -88,7 +89,18 @@ export class StoryAgent {
       switch (name) {
         case "roll_dice": {
           const { dice_type, count } = RollDiceToolCallSchema.parse(args);
-          return this.diceService.throwDice(dice_type, count || 1);
+          const result = await this.diceService.throwDice(
+            dice_type,
+            count || 1,
+          );
+          if (onDiceRoll) {
+            const diceString = await this.diceService.getDiceString(
+              dice_type,
+              1,
+            );
+            onDiceRoll(diceString, count || 1, result.result);
+          }
+          return result;
         }
         default:
           throw new Error(`Unknown tool: ${name}`);
@@ -98,7 +110,10 @@ export class StoryAgent {
     const content = await this.chat.send(params, handler);
     const jsonText = extractJson(content || "{}");
     const parsed = StoryResponseSchema.safeParse(JSON.parse(jsonText));
-    if (!parsed.success) throw new Error("Invalid AI response format");
+    if (!parsed.success) {
+      console.error("Validation errors:", JSON.stringify(parsed.error.errors, null, 2));
+      throw new Error(`Invalid AI response format, response: ${jsonText}`);
+    }
     return parsed.data as StoryResponse;
   }
 }

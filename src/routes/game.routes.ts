@@ -35,6 +35,12 @@ router.get("/content", (req, res) => {
 
 router.post("/action", async (req, res) => {
   console.log("HTTP POST /game/action", { body: req.body });
+  
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+  
   try {
     const { characterId, action } = req.body as {
       characterId: string;
@@ -42,12 +48,17 @@ router.post("/action", async (req, res) => {
     };
     const gameService = req.app.locals.gameService as GameService;
     console.log("game: process start", { characterId, action });
-    const result = await gameService.processPlayerAction(characterId, action);
-    console.log("game: process done", { keys: Object.keys(result || {}) });
-    res.json(result);
+    
+    await gameService.processPlayerActionSSE(characterId, action, (event) => {
+      res.write(`data: ${JSON.stringify(event)}\n\n`);
+    });
+    
+    res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
+    res.end();
   } catch (err: any) {
     console.error(err);
-    res.status(500).json({ error: "Game error", message: err.message });
+    res.write(`data: ${JSON.stringify({ type: 'error', message: err.message })}\n\n`);
+    res.end();
   }
 });
 

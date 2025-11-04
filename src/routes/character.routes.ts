@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { PROMPT_CONFIGURATION } from "../config/PromptProperties";
-import { CharacterEquipment } from "../types";
 import { InventoryService } from "../services/InventoryService";
 import { CharacterValidationService } from "../services/CharacterValidationService";
 
@@ -76,9 +75,10 @@ router.post("/generate-image", async (req, res) => {
 
 router.post("/sprite/regenerate", async (req, res) => {
   try {
-    const { characterId, newEquipment } = req.body as {
+    const { characterId, equippedItemIds, unequippedItemIds } = req.body as {
       characterId: string;
-      newEquipment: CharacterEquipment;
+      equippedItemIds: string[];
+      unequippedItemIds: string[];
     };
     const { characterService, gameService } = req.app.locals;
     const character = await characterService.getCharacter(characterId);
@@ -87,7 +87,8 @@ router.post("/sprite/regenerate", async (req, res) => {
     }
     const imageUrl = await gameService.regenerateCharacterImage(
       character,
-      newEquipment,
+      equippedItemIds,
+      unequippedItemIds,
     );
     res.json({ imageUrl });
   } catch (err: any) {
@@ -135,7 +136,9 @@ router.post("/validate", async (req, res) => {
     const { appearance, inventory } = req.body;
     const { chatCompletionService } = req.app.locals;
 
-    const validationService = new CharacterValidationService(chatCompletionService);
+    const validationService = new CharacterValidationService(
+      chatCompletionService,
+    );
     const result = await validationService.validateAndParseCharacter(
       appearance || "",
       inventory || "",

@@ -20,6 +20,8 @@ function addMessage(text, isUser) {
 document.getElementById('chat-form').addEventListener('submit', async function (event) {
     event.preventDefault()
     
+    hideDiceBox()
+    
     const actionValue = document.getElementById('action').value.trim()
     if (!actionValue) return
     
@@ -46,33 +48,97 @@ window.onAction = async (body) => {
     messagesContainer.scrollTop = messagesContainer.scrollHeight
     
     try {
-        const res = await fetch('/game/action', {
+        const response = await fetch('/game/action', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(body)
         })
-
-        const responseJson = await res.json()
         
-        loadingDiv.remove()
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+        let buffer = ''
         
-        addMessage(responseJson.narrative, false)
-        
-        if (responseJson.locationImage) {
-            document.getElementById('locImg').setAttribute('src', responseJson.locationImage)
-            document.body.style.setProperty('--bg-image', `url(${responseJson.locationImage})`)
-            sessionStorage.setItem('locationImage', responseJson.locationImage)
+        while (true) {
+            const {done, value} = await reader.read()
+            if (done) break
+            
+            buffer += decoder.decode(value, {stream: true})
+            const lines = buffer.split('\n\n')
+            buffer = lines.pop()
+            
+            for (const line of lines) {
+                if (!line.startsWith('data: ')) continue
+                const jsonStr = line.slice(6)
+                console.log('SSE raw JSON:', jsonStr)
+                
+                let data
+                try {
+                    data = JSON.parse(jsonStr)
+                } catch (e) {
+                    console.error('JSON parse error:', e, 'Raw:', jsonStr)
+                    continue
+                }
+                
+                switch (data.type) {
+                    case 'dice_roll':
+												console.log('Try to roll dice', window.diceBox)
+                        showDiceRoll(data.dice, data.result)
+                        break
+                    
+                    case 'narrative':
+                        loadingDiv.remove()
+                        addMessage(data.narrative, false)
+                        break
+                    
+                    case 'location_image':
+                        document.getElementById('locImg').setAttribute('src', data.url)
+                        document.body.style.setProperty('--bg-image', `url(${data.url})`)
+                        sessionStorage.setItem('locationImage', data.url)
+                        break
+                    
+                    case 'character_image':
+                        console.log('Character image updated:', data.url)
+                        break
+                    
+                    case 'error':
+                        loadingDiv.remove()
+                        addMessage('Ошибка: ' + data.message, false)
+                        break
+                    
+                    case 'done':
+                        console.log('Action processing complete')
+                        break
+                }
+            }
         }
-        
-        console.log("response received", responseJson)
-        
-        if (!res.ok) throw new Error('Action failed')
     } catch (e) {
         console.error(e)
         loadingDiv.remove()
         addMessage('Произошла ошибка при обработке действия', false)
     }
 }
+
+function showDiceRoll(dice, result) {
+    const diceBoxEl = document.getElementById('dice-box');
+    diceBoxEl.style.opacity = '1';
+    diceBoxEl.style.pointerEvents = 'auto';
+    
+    const diceNotation = `${dice}@${result}`;
+    console.log('Rolling dice:', diceNotation, 'Result:', result);
+    window.diceBox.roll(diceNotation);
+}
+
+function hideDiceBox() {
+    console.log('hideDiceBox called');
+    const diceBoxEl = document.getElementById('dice-box');
+    if (diceBoxEl) {
+        diceBoxEl.style.opacity = '0';
+        diceBoxEl.style.pointerEvents = 'none';
+        console.log('dice box hidden');
+    }
+}
+
+let equipmentSnapshot = null
 
 document.getElementById('inventory').addEventListener('click', async function (event) {
     event.preventDefault()
@@ -88,6 +154,12 @@ document.getElementById('inventory').addEventListener('click', async function (e
             const inventoryDialog = document.getElementById('inventoryDialog')
             const inventory = document.getElementById('inventoryGrid')
             console.log('result', r)
+            
+            equipmentSnapshot = {}
+            for (const slot in r.equipment) {
+                equipmentSnapshot[slot] = r.equipment[slot]?.id || null
+            }
+            console.log('Equipment snapshot saved:', equipmentSnapshot)
             
             // Portrait
             if (r.imageUrl) {
@@ -155,6 +227,75 @@ document.getElementById('CloseDialog').addEventListener('click', async function 
     console.log('CloseDialog')
     const inventoryDialog = document.getElementById('inventoryDialog')
     inventoryDialog.close()
+    
+    const characterId = sessionStorage.getItem('characterId') ?? getCookie('characterId')
+    
+    try {
+        const currentRes = await fetch(`/character?id=${characterId}`)
+        if (!currentRes.ok) {
+            console.error('Failed to fetch current equipment')
+            return
+        }
+        
+        const currentData = await currentRes.json()
+        const currentEquipment = {}
+        for (const slot in currentData.equipment) {
+            currentEquipment[slot] = currentData.equipment[slot]?.id || null
+        }
+        
+        console.log('Current equipment:', currentEquipment)
+        console.log('Snapshot equipment:', equipmentSnapshot)
+        
+        const equippedItemIds = []
+        const unequippedItemIds = []
+        
+        if (equipmentSnapshot) {
+            const allSlots = new Set([...Object.keys(currentEquipment), ...Object.keys(equipmentSnapshot)])
+            
+            for (const slot of allSlots) {
+                const current = currentEquipment[slot] || null
+                const snapshot = equipmentSnapshot[slot] || null
+                
+                if (current !== snapshot) {
+                    if (current && !snapshot) {
+                        equippedItemIds.push(current)
+                        console.log(`Equipped in ${slot}: ${current}`)
+                    } else if (!current && snapshot) {
+                        unequippedItemIds.push(snapshot)
+                        console.log(`Unequipped from ${slot}: ${snapshot}`)
+                    } else if (current && snapshot) {
+                        unequippedItemIds.push(snapshot)
+                        equippedItemIds.push(current)
+                        console.log(`Replaced in ${slot}: ${snapshot} -> ${current}`)
+                    }
+                }
+            }
+        }
+        
+        if (equippedItemIds.length > 0 || unequippedItemIds.length > 0) {
+            console.log('Equipment changed, regenerating sprite...', { equippedItemIds, unequippedItemIds })
+            const res = await fetch('/character/sprite/regenerate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ 
+                    characterId,
+                    equippedItemIds,
+                    unequippedItemIds
+                })
+            })
+            
+            if (res.ok) {
+                const data = await res.json()
+                console.log('Character sprite regenerated:', data.imageUrl)
+            } else {
+                console.error('Failed to regenerate sprite')
+            }
+        } else {
+            console.log('No equipment changes detected, skipping regeneration')
+        }
+    } catch (err) {
+        console.error('Failed to check equipment changes', err)
+    }
 })
 
 // ==================== TEMPORARY DRAG-N-DROP LOGIC (EASY TO REMOVE) ====================

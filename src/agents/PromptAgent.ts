@@ -1,4 +1,4 @@
-import { CharacterEquipment, Hero, Location, StoryResponse } from "../types";
+import { Hero, Item, Location, StoryResponse } from "../types";
 import {
   ChatCompletionService,
   ChatRequestParams,
@@ -58,36 +58,15 @@ export class PromptAgent {
       .replace("{{ character_equipment }}", JSON.stringify(result));
   }
 
-  characterImageRegenerationPrompt(
+  characterImageRegenerationPromptByItems(
     character: Hero,
-    newEquipment: CharacterEquipment,
+    equippedItemNames: Item[],
+    unequippedItemNames: string[],
   ): string {
-    const slots = [
-      ...new Set([
-        ...Object.keys(character.equipment || {}),
-        ...Object.keys(newEquipment || {}),
-      ]),
-    ] as (keyof CharacterEquipment)[];
-
-    const takeOffItems: string[] = [];
-    const takeOnItems: string[] = [];
-
-    for (const slot of slots) {
-      const prevItem = character.equipment?.[slot];
-      const newItem = newEquipment?.[slot];
-
-      if (prevItem?.id !== newItem?.id) {
-        if (prevItem?.name) {
-          takeOffItems.push(prevItem.name);
-        }
-        if (newItem?.name) {
-          takeOnItems.push(newItem.name);
-        }
-      }
-    }
-
-    const takeOffItemsNames = takeOffItems.join(", ");
-    const takeOnItemsNames = takeOnItems.join(", ");
+    const takeOffItemsNames = unequippedItemNames.join(", ");
+    const takeOnItemsNames = equippedItemNames
+      .map((i) => `${i.name}: ${i.description}`)
+      .join(", ");
 
     return PROMPT_CONFIGURATION.prompt.characterImage
       .replace("{{ character_description }}", character.appearance)
