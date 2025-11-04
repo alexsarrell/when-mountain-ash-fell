@@ -160,39 +160,22 @@ document.getElementById('inventory').addEventListener('click', async function (e
                 equipmentSnapshot[slot] = r.equipment[slot]?.id || null
             }
             console.log('Equipment snapshot saved:', equipmentSnapshot)
-            
-            // Portrait
-            if (r.imageUrl) {
-                const el = document.getElementById('inventory-portrait')
-                if (el) {
-                    el.innerHTML = ''
-                    const img = document.createElement('img')
-                    img.src = r.imageUrl
-                    img.alt = 'Character portrait'
-                    img.className = 'inventory-portrait-image'
-                    el.appendChild(img)
-                }
-            }
-            
-            // Equipment slots
-            const equipmentSlots = document.querySelectorAll('.equipment-slot')
-            equipmentSlots.forEach(slot => {
-                const slotName = slot.dataset.slot
-                const equippedItem = r.equipment?.[slotName]
-                if (equippedItem) {
-                    slot.textContent = equippedItem.name
-                    slot.classList.add('filled')
-                    slot.dataset.itemId = equippedItem.id
-                    slot.setAttribute('draggable', 'true')
-                } else {
-                    slot.textContent = ''
-                    slot.classList.remove('filled')
-                    delete slot.dataset.itemId
-                    slot.setAttribute('draggable', 'false')
-                }
-            })
-            
-            // Inventory items
+
+
+	        // Portrait
+	        if (r.imageUrl) {
+		        const el = document.getElementById('inventory-portrait')
+		        if (el) {
+			        el.innerHTML = ''
+			        const img = document.createElement('img')
+			        img.src = r.imageUrl
+			        img.alt = 'Character portrait'
+			        img.className = 'inventory-portrait-image'
+			        el.appendChild(img)
+		        }
+	        }
+
+	        // Inventory items
             inventory.innerHTML = ''
             const totalSlots = 15
             for (let i = 0; i < totalSlots; i++)
@@ -298,118 +281,6 @@ document.getElementById('CloseDialog').addEventListener('click', async function 
     }
 })
 
-// ==================== TEMPORARY DRAG-N-DROP LOGIC (EASY TO REMOVE) ====================
-// TODO: Remove this block when brother's implementation is ready
-let draggedItemData = null
-
-function setupDragAndDrop() {
-    // Drag from inventory
-    document.addEventListener('dragstart', (e) => {
-        if (e.target.classList.contains('inventory-item') && !e.target.classList.contains('empty')) {
-            draggedItemData = {
-                itemId: e.target.dataset.itemId,
-                itemName: e.target.textContent,
-                source: 'inventory'
-            }
-            e.dataTransfer.effectAllowed = 'move'
-        }
-        
-        // Drag from equipment slot
-        if (e.target.classList.contains('equipment-slot') && e.target.classList.contains('filled')) {
-            draggedItemData = {
-                itemId: e.target.dataset.itemId,
-                itemName: e.target.textContent,
-                source: 'equipment',
-                slot: e.target.dataset.slot
-            }
-            e.dataTransfer.effectAllowed = 'move'
-        }
-    })
-    
-    // Allow drop on equipment slots
-    document.addEventListener('dragover', (e) => {
-        if (e.target.classList.contains('equipment-slot')) {
-            e.preventDefault()
-            e.dataTransfer.dropEffect = 'move'
-        }
-        
-        if (e.target.classList.contains('inventory-item')) {
-            e.preventDefault()
-            e.dataTransfer.dropEffect = 'move'
-        }
-    })
-    
-    // Drop on equipment slot
-    document.addEventListener('drop', async (e) => {
-        e.preventDefault()
-        
-        const characterId = sessionStorage.getItem('characterId') ?? getCookie('characterId')
-        
-        // Equip item from inventory
-        if (e.target.classList.contains('equipment-slot') && draggedItemData?.source === 'inventory') {
-            const slot = e.target.dataset.slot
-            const itemId = draggedItemData.itemId
-            
-            try {
-                const res = await fetch(`/character/${characterId}/equip`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ itemId, slot })
-                })
-                
-                if (res.ok) {
-                    const data = await res.json()
-                    console.log('Equipped', draggedItemData.itemName, 'to', slot)
-                    
-                    // Update UI
-                    e.target.textContent = draggedItemData.itemName
-                    e.target.classList.add('filled')
-                    e.target.dataset.itemId = itemId
-                    e.target.setAttribute('draggable', 'true')
-                } else {
-                    console.error('Failed to equip item')
-                }
-            } catch (err) {
-                console.error('Failed to equip item', err)
-            }
-        }
-        
-        // Unequip item (drag equipment to inventory)
-        if (e.target.classList.contains('inventory-item') && draggedItemData?.source === 'equipment') {
-            const slot = draggedItemData.slot
-            
-            try {
-                const res = await fetch(`/character/${characterId}/unequip`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ slot })
-                })
-                
-                if (res.ok) {
-                    console.log('Unequipped from', slot)
-                    
-                    // Find and clear equipment slot
-                    const equipSlot = document.querySelector(`[data-slot="${slot}"]`)
-                    if (equipSlot) {
-                        equipSlot.textContent = ''
-                        equipSlot.classList.remove('filled')
-                        delete equipSlot.dataset.itemId
-                        equipSlot.setAttribute('draggable', 'false')
-                    }
-                } else {
-                    console.error('Failed to unequip item')
-                }
-            } catch (err) {
-                console.error('Failed to unequip item', err)
-            }
-        }
-        
-        draggedItemData = null
-    })
-}
-
-setupDragAndDrop()
-// ==================== END OF TEMPORARY DRAG-N-DROP LOGIC ====================
 
 const chatToggleBtn = document.getElementById('chat-toggle')
 const chatCollapseBtn = document.querySelector('.chat-collapse-btn')
