@@ -5,6 +5,7 @@ function toGameState(obj: any) {
   if (obj?.currentLocation?.NPCs) {
     obj.currentLocation.NPCs = obj.currentLocation.NPCs.map((n: any) => ({
       ...n,
+      equipment: n.equipment ?? {},
       inventory: Array.isArray(n.inventory)
         ? n.inventory.map((it: any) => ({ ...it, stats: it?.stats ?? {} }))
         : [],

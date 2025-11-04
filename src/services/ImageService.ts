@@ -59,6 +59,7 @@ export class ImageService {
         publicImageUrl: undefined,
       };
     } else {
+      console.log(`Generating image with sprite passing`);
       const publicUrl = decodeURIComponent(
         await uploadImageToS3(
           process.env.S3_BUCKET || "",

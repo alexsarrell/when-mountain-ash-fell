@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { PROMPT_CONFIGURATION } from "../config/PromptProperties";
 import { CharacterEquipment } from "../types";
+import { InventoryService } from "../services/InventoryService";
+import { CharacterValidationService } from "../services/CharacterValidationService";
 
 const router = Router();
 
@@ -40,7 +42,15 @@ router.post("/generate-image", async (req, res) => {
       stats,
       appearance,
       age,
+      equipment,
     } = req.body || {};
+
+    const equipmentDescription = equipment
+      ? Object.entries(equipment)
+          .filter(([_, item]) => item)
+          .map(([slot, item]: [string, any]) => `${slot}: ${item.name}`)
+          .join(", ")
+      : cls?.startingItems || "";
 
     const prompt = PROMPT_CONFIGURATION.prompt.character
       .replace("{{ character_name }}", name)
@@ -50,10 +60,11 @@ router.post("/generate-image", async (req, res) => {
       .replace("{{ character_age }}", age)
       .replace("{{ character_appearance }}", appearance)
       .replace("{{ character_stats }}", JSON.stringify(stats))
-      .replace("{{ character_equipment }}", JSON.stringify(cls?.startingItems));
+      .replace("{{ character_equipment }}", equipmentDescription);
 
     const url = await imageService.generateCharacterImage(prompt);
-    res.json({ imageUrl: url, prompt });
+    const cleanUrl = url.replaceAll("%2F", "/");
+    res.json({ imageUrl: cleanUrl, prompt });
   } catch (err: any) {
     console.error(err);
     res.status(500).json({
@@ -87,27 +98,56 @@ router.post("/sprite/regenerate", async (req, res) => {
   }
 });
 
-router.patch("/:characterId/equipment", async (req, res) => {
+router.post("/:id/equip", async (req, res) => {
   try {
-    const { characterId } = req.params;
-    const newEquipment = req.body as CharacterEquipment;
-    const { characterService, gameService } = req.app.locals;
-    const character = await characterService.getCharacter(characterId);
-    if (!character) {
-      return res.status(404).json({ error: "Character not found" });
-    }
-    const imageUrl = await gameService.regenerateCharacterImage(
-      character,
-      newEquipment,
+    const inventoryService = new InventoryService();
+    await inventoryService.equipItem(
+      req.params.id,
+      req.body.itemId,
+      req.body.slot,
     );
-    character.equipment = { ...character.equipment, ...newEquipment };
-    await characterService.updateCharacter(character);
-    res.json({ character, imageUrl });
+
+    const { characterService } = req.app.locals;
+    const hero = await characterService.getCharacter(req.params.id);
+    res.json({ success: true, hero });
   } catch (err: any) {
     console.error(err);
-    res
-      .status(500)
-      .json({ error: "Equipment update error", message: err.message });
+    res.status(400).json({ error: err.message });
+  }
+});
+
+router.post("/:id/unequip", async (req, res) => {
+  try {
+    const inventoryService = new InventoryService();
+    await inventoryService.unequipItem(req.params.id, req.body.slot);
+
+    const { characterService } = req.app.locals;
+    const hero = await characterService.getCharacter(req.params.id);
+    res.json({ success: true, hero });
+  } catch (err: any) {
+    console.error(err);
+    res.status(400).json({ error: err.message });
+  }
+});
+
+router.post("/validate", async (req, res) => {
+  try {
+    const { appearance, inventory } = req.body;
+    const { chatCompletionService } = req.app.locals;
+
+    const validationService = new CharacterValidationService(chatCompletionService);
+    const result = await validationService.validateAndParseCharacter(
+      appearance || "",
+      inventory || "",
+    );
+
+    res.json(result);
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({
+      error: "Character validation error",
+      message: err.message,
+    });
   }
 });
 

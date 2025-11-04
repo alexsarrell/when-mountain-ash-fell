@@ -13,8 +13,7 @@ const state = {
     race: null,
     cls: null,
     points: {},         // будет заполнено после загрузки
-    content: { races: [], classes: [], items: {}, stats: {} },
-    spriteGenerated: false
+    content: { races: [], classes: [], items: {}, stats: {} }
 }
 
 // ============ Хелперы для работы со статами ============
@@ -226,7 +225,6 @@ function renderStats() {
             // Применяем изменение
             state.points[k] = playerPoints + d
             state.pool -= d
-            state.spriteGenerated = false
 
             renderStats()
             syncSubmit()
@@ -262,7 +260,6 @@ function renderRaces() {
 
         div.addEventListener('click', () => {
             state.race = r
-            state.spriteGenerated = false
             renderRaces()
             renderStats()
             syncSubmit()
@@ -299,7 +296,6 @@ function renderClasses() {
 
         div.addEventListener('click', () => {
             state.cls = c
-            state.spriteGenerated = false
             renderClasses()
             renderStats()
             renderItems()
@@ -314,34 +310,24 @@ function renderClasses() {
 
 function syncSubmit() {
     const can = canSubmit()
-    const genBtn = document.getElementById('generate-character-sprite')
     const createBtn = document.getElementById('create-character')
-    if (genBtn) genBtn.disabled = !can
-    if (createBtn) createBtn.disabled = !(can && state.spriteGenerated)
+    if (createBtn) createBtn.disabled = !can
 }
 
 // ============ События полей ввода ============
 
-document.getElementById('name').addEventListener('input', () => {
-    state.spriteGenerated = false
-    syncSubmit()
-})
+document.getElementById('name').addEventListener('input', syncSubmit)
 
 document.getElementById('age').addEventListener('input', () => {
     state.age = Number(document.getElementById('age').value) || null
-    state.spriteGenerated = false
     syncSubmit()
 })
 
-document.getElementById('appearance').addEventListener('input', () => {
-    state.spriteGenerated = false
-    syncSubmit()
-})
+document.getElementById('appearance').addEventListener('input', syncSubmit)
 
-document.getElementById('sex').addEventListener('change', () => {
-    state.spriteGenerated = false
-    syncSubmit()
-})
+document.getElementById('inventory').addEventListener('input', syncSubmit)
+
+document.getElementById('sex').addEventListener('change', syncSubmit)
 
 // ============ Загрузка контента ============
 
@@ -353,6 +339,10 @@ async function loadContent() {
     // ВАЖНО: инициализируем state после загрузки
     initializeState()
 
+    // Инициализируем возраст из поля ввода
+    const ageInput = document.getElementById('age')
+    state.age = Number(ageInput.value) || 20
+
     renderRaces()
     renderClasses()
     renderStats()
@@ -360,49 +350,184 @@ async function loadContent() {
     syncSubmit()
 }
 
-// ============ Генерация спрайта ============
+// ============ Создание персонажа ============
 
-document.getElementById('generate-character-sprite').addEventListener('click', async () => {
+document.getElementById('create-character').addEventListener('click', async () => {
+    const appearance = document.getElementById('appearance').value.trim()
+    const inventory = document.getElementById('inventory').value.trim()
+
+    try {
+        const validationRes = await fetch('/character/validate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ appearance, inventory })
+        })
+
+        if (!validationRes.ok) {
+            throw new Error('Ошибка валидации персонажа')
+        }
+
+        const validationData = await validationRes.json()
+        showCharacterPreview(validationData)
+    } catch (err) {
+        console.error(err)
+        alert('Ошибка при валидации персонажа: ' + err.message)
+    }
+})
+
+async function generateSpriteForPreview(validationData) {
     const payload = {
         name: document.getElementById('name').value.trim(),
         age: state.age,
         sex: document.getElementById('sex').value,
-        race: state.race?.id,
-        class: state.cls,
+        race: state.race?.name,
+        class: state.cls?.name,
         stats: eff(),
-        appearance: document.getElementById('appearance').value.trim(),
-        items: (state.cls?.startingItems || [])
-            .map(id => state.content.items[id])
-            .filter(Boolean)
+        appearance: validationData.appearance,
+        equipment: validationData.equipment,
+        inventory: validationData.inventory
     }
-
-    const prev = typeof getCookie === 'function' ? getCookie('imageUrl') : undefined
 
     if (window.onCharacterSpriteGenerate) {
         await window.onCharacterSpriteGenerate(payload)
-        const curr = typeof getCookie === 'function' ? getCookie('imageUrl') : undefined
-        if (curr && curr !== prev) state.spriteGenerated = true
+    }
+}
+
+async function showCharacterPreview(validationData) {
+    await generateSpriteForPreview(validationData)
+
+    const modal = document.createElement('div')
+    modal.id = 'character-preview-modal'
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    `
+
+    const content = document.createElement('div')
+    content.style.cssText = `
+        background: linear-gradient(#f0e6d4, #e4d5b6);
+        border: 2px solid var(--sep);
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    `
+
+    const renderPreview = () => {
+        const imageUrl = getCookie('imageUrl')
+        const statsObj = eff()
+
+        const equipmentHtml = Object.entries(validationData.equipment)
+            .filter(([_, item]) => item)
+            .map(([slot, item]) => `<div><b>${slot}:</b> ${item.name}</div>`)
+            .join('')
+
+        const inventoryHtml = validationData.inventory
+            .map(item => `<div><b>${item.name}</b> ${item.description ? `- ${item.description}` : ''}</div>`)
+            .join('')
+
+        const rejectedHtml = validationData.rejectedItems.length > 0
+            ? `<div style="color: #a21d1d; margin-top: 12px; padding: 10px; background: #ffebe6; border: 1px solid #ff6b6b; border-radius: 8px;">
+                <h4 style="margin: 0 0 8px;">⚠ Отклоненные предметы:</h4>
+                ${validationData.rejectedItems.map(r => `<div><b>${r.name}:</b> ${r.reason}</div>`).join('')}
+            </div>`
+            : ''
+
+        const statsHtml = Object.entries(statsObj)
+            .map(([key, value]) => {
+                const def = state.content.stats[key]
+                return `<div style="display: flex; justify-content: space-between; border-bottom: 1px dotted #caa06a; padding: 4px 0;">
+                    <span>${def?.label || key}</span>
+                    <span>${value}</span>
+                </div>`
+            })
+            .join('')
+
+        content.innerHTML = `
+            <h2 style="margin: 0 0 16px; color: #3a2a1a;">Анкета персонажа</h2>
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+                <div>
+                    <div id="sprite-container" style="position: relative;">
+                        ${imageUrl ? `<img id="sprite-image" src="${imageUrl}" style="width: 100%; border-radius: 12px; border: 2px solid #9d7848;">` : '<div style="aspect-ratio: 3/4; background: #d3b98e; border: 2px solid #9d7848; border-radius: 12px;"></div>'}
+                    </div>
+                    <button id="regenerate-sprite" class="btn" style="width: 100%; margin-top: 8px; padding: 8px;">🔄 Перегенерировать</button>
+                </div>
+                <div>
+                    <div style="margin-bottom: 12px;">
+                        <h4 style="margin: 0 0 4px; color: #3a2a1a;">Имя:</h4>
+                        <div>${document.getElementById('name').value.trim()}</div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <h4 style="margin: 0 0 4px; color: #3a2a1a;">Раса / Класс:</h4>
+                        <div>${state.race?.name} / ${state.cls?.name}</div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <h4 style="margin: 0 0 4px; color: #3a2a1a;">Характеристики:</h4>
+                        <div style="font-size: 12px;">${statsHtml}</div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 16px;">
+                <h4 style="margin: 0 0 8px; color: #3a2a1a;">Внешность:</h4>
+                <div style="background: #fcf7e9; padding: 10px; border-radius: 8px; border: 1px solid #b48a5a;">${validationData.appearance}</div>
+            </div>
+            ${equipmentHtml ? `<div style="margin-top: 16px;">
+                <h4 style="margin: 0 0 8px; color: #3a2a1a;">Экипировка:</h4>
+                <div style="background: #fcf7e9; padding: 10px; border-radius: 8px; border: 1px solid #b48a5a; font-size: 14px;">${equipmentHtml}</div>
+            </div>` : ''}
+            ${inventoryHtml ? `<div style="margin-top: 16px;">
+                <h4 style="margin: 0 0 8px; color: #3a2a1a;">Стартовые предметы:</h4>
+                <div style="background: #fcf7e9; padding: 10px; border-radius: 8px; border: 1px solid #b48a5a; font-size: 14px;">${inventoryHtml}</div>
+            </div>` : ''}
+            ${rejectedHtml}
+            <div style="display: flex; gap: 12px; margin-top: 20px; justify-content: flex-end;">
+                <button id="preview-edit" class="btn" style="background: linear-gradient(#888, #666);">Изменить</button>
+                <button id="preview-confirm" class="btn">Подтвердить</button>
+            </div>
+        `
     }
 
-    syncSubmit()
-})
+    const setupEventListeners = () => {
+        document.getElementById('regenerate-sprite').addEventListener('click', async () => {
+            await generateSpriteForPreview(validationData)
+            renderPreview()
+            setupEventListeners()
+        })
 
-// ============ Создание персонажа ============
+        document.getElementById('preview-edit').addEventListener('click', () => {
+            modal.remove()
+        })
 
-document.getElementById('create-character').addEventListener('click', () => {
+        document.getElementById('preview-confirm').addEventListener('click', async () => {
+            await createCharacter(validationData)
+            modal.remove()
+        })
+    }
+
+    renderPreview()
+    modal.appendChild(content)
+    document.body.appendChild(modal)
+    setupEventListeners()
+}
+
+async function createCharacter(validationData) {
     const statsObj = eff()
-
-    console.log(`starting items ${state.cls?.startingItems || []}`)
-
     const id = uuidv4()
 
-		const startingItems =
-			(state.cls?.startingItems || [])
-				.map(id => ({
-					id,
-					name: state.content.items[id].name
-				}))
-				.filter(Boolean)
+    const allItems = [
+        ...Object.values(validationData.equipment).filter(Boolean),
+        ...validationData.inventory
+    ]
 
     const payload = {
         _id: id,
@@ -413,32 +538,27 @@ document.getElementById('create-character').addEventListener('click', () => {
         class: state.cls,
         stats: statsObj,
         level: 1,
-        appearance: document.getElementById('appearance').value.trim(),
-        inventory: startingItems,
-	      equipment: {
-		      weapon1: { id: "id1", name: "name1" },
-		      weapon2: { id: "id2", name: "name1" },
-		      armor: { id: "id3", name: "name1" },
-		      helmet: { id: "id4", name: "name1" },
-		      belt: { id: "id5", name: "name1" },
-		      necklace: { id: "id6", name: "name1" },
-		      ring1: { id: "id7", name: "name1" },
-		      ring2: { id: "id8", name: "name1" },
-		      boots: { id: "id9", name: "name1" },
-		      gloves: { id: "id10", name: "name1" },
-	      },
+        appearance: validationData.appearance,
+        inventory: allItems,
+        equipment: validationData.equipment,
         imageUrl: getCookie('imageUrl')
     }
 
-    if (window.onCharacterCreation) {
-        window.onCharacterCreation(payload).then(r => r)
+    try {
+        if (window.onCharacterCreation) {
+            await window.onCharacterCreation(payload)
+        }
+
+        sessionStorage.setItem('characterId', id.toString())
+        setCookie('characterId', id.toString(), '/', 3600000)
+
+        window.location.href = 'game.html'
+    } catch (err) {
+        console.error(err)
+        alert('Не удалось создать персонажа: ' + err.message)
+        throw err
     }
-
-    sessionStorage.setItem('characterId', id.toString())
-    setCookie('characterId', id.toString(), '/', 3600000)
-
-    window.location.href = 'game.html'
-})
+}
 
 // ============ Запуск ============
 

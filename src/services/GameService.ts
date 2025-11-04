@@ -60,6 +60,15 @@ export class GameService {
       character.inventory = character.inventory.filter(
         (i: Item) => !lostIds.has(i.id),
       );
+
+      // Также удаляем из equipment
+      for (const slot in character.equipment) {
+        const equippedItem =
+          character.equipment[slot as keyof CharacterEquipment];
+        if (equippedItem && lostIds.has(equippedItem.id)) {
+          character.equipment[slot as keyof CharacterEquipment] = undefined;
+        }
+      }
     }
 
     const npcs: NPCDto[] = storyResponse.NPCs || [];
@@ -73,11 +82,14 @@ export class GameService {
     const locationPrompt = await this.promptAgent.createLocationPrompt(
       character,
       gameState.currentLocation,
+      action,
       storyResponse,
     );
     try {
-      console.log("svc: generating location image");
       const prevImageUrl = `public${await this.buildImageUrl(character)}`;
+      console.log(
+        `svc: generating location image with character ${prevImageUrl}`,
+      );
       gameState.currentLocation.locationImageUrl =
         await this.imageService.generateLocationImage(
           locationPrompt,

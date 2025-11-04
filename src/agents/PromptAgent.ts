@@ -38,6 +38,7 @@ export class PromptAgent {
         "Кольцо на левой руке",
         character?.equipment?.ring2?.name?.trim() || notEquipped,
       ],
+      ["Штаны", character?.equipment?.legs?.name?.trim() || notEquipped],
       ["Ботинки", character?.equipment?.boots?.name?.trim() || notEquipped],
       ["Перчатки", character?.equipment?.gloves?.name?.trim() || notEquipped],
     ];
@@ -97,6 +98,7 @@ export class PromptAgent {
   async createLocationPrompt(
     hero: Hero,
     location: Location,
+    playerAction: string,
     storyResponse: StoryResponse,
   ): Promise<string> {
     const characters = location.NPCs.map((npc) => ({
@@ -112,7 +114,8 @@ export class PromptAgent {
       .replace("{{ location_description }}", location.description)
       .replace("{{ characters_on_location }}", JSON.stringify(characters))
       .replace("{{ hero_appearance }}", hero.appearance)
-      .replace("{{ narrative }}", storyResponse.narrative);
+      .replace("{{ narrative }}", storyResponse.narrative)
+      .replace("{{ player_action }}", playerAction);
 
     const params: ChatRequestParams = {
       model: this.model,

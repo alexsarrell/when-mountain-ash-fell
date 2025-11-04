@@ -10,6 +10,7 @@ export { DiceResultSchema } from "../schemas/diceResult.schema";
 export {
   CharacterStatsSchema,
   CharacterEquipmentSchema,
+  CharacterEquipmentIdsSchema,
 } from "../schemas/character.schema";
 export { NPCSchema } from "../schemas/npc.schema";
 export { StoryResponseSchema } from "../schemas/storyResponse.schema";
@@ -20,6 +21,7 @@ export {
 } from "../schemas/gameState.schema";
 export {
   HeroSchema,
+  HeroDBSchema,
   RaceSchema,
   GameClassSchema,
 } from "../schemas/hero.schema";
@@ -40,6 +42,9 @@ export type CharacterStats = z.infer<
 export type CharacterEquipment = z.infer<
   typeof import("../schemas/character.schema").CharacterEquipmentSchema
 >;
+export type CharacterEquipmentIds = z.infer<
+  typeof import("../schemas/character.schema").CharacterEquipmentIdsSchema
+>;
 export type NPCDto = z.infer<typeof import("../schemas/npc.schema").NPCSchema>;
 export type StoryResponse = z.infer<
   typeof import("../schemas/storyResponse.schema").StoryResponseSchema
@@ -54,3 +59,4 @@ export type GameState = z.infer<
   typeof import("../schemas/gameState.schema").GameStateSchema
 >;
 export type Hero = z.infer<typeof import("../schemas/hero.schema").HeroSchema>;
+export type HeroDB = z.infer<typeof import("../schemas/hero.schema").HeroDBSchema>;

@@ -52,6 +52,7 @@ async function main() {
   app.locals.characterService = characterService;
   app.locals.imageService = imageService;
   app.locals.mongoCharacterService = mongoCharacterService;
+  app.locals.chatCompletionService = chatService;
 
   const port = Number(process.env.PORT) || 3000;
   app.listen(port, () => {

@@ -1,5 +1,18 @@
 import { z } from "zod";
 
+export const EquipmentSlotEnum = z.enum([
+  "weapon1",
+  "weapon2",
+  "armor",
+  "helmet",
+  "belt",
+  "necklace",
+  "ring1",
+  "ring2",
+  "boots",
+  "gloves",
+]);
+
 export const ItemStatsSchema = z.object({
   damage: z.number().optional(),
   defense: z.number().optional(),
@@ -20,6 +33,10 @@ export const ItemSchema = z.object({
   type: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
   stats: ItemStatsSchema.optional().nullable(),
+  equipSlots: z.array(EquipmentSlotEnum).optional().describe(`
+    Массив слотов экипировки, в которые можно вставить предмет.
+    Например: ["weapon1"] для двуручного меча, ["weapon1", "weapon2"] для кинжала или одноручного меча, ["weapon1", "weapon2"] для щита великана и т.д.
+  `),
 });
 
 export const ItemStateSchema = z.object({

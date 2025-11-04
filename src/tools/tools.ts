@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { z } from "zod";
 import { DiceEnum } from "../services/DiceService";
+import { CharacterStatsSchema } from "../schemas/character.schema";
 
 export const TOOLS: Record<string, OpenAI.Chat.ChatCompletionTool> = {
   roll_dice: {
@@ -37,4 +38,11 @@ export const RollDiceToolCallSchema = z.object({
     z.nativeEnum(DiceEnum),
   ),
   count: z.number().optional().default(1),
+  /*attribute: z.enum(
+    Object.keys(CharacterStatsSchema.shape) as [string, ...string[]],
+  ).describe(`
+    Аттрибут, для которого бросается дайс.
+  `),*/
 });
+
+// TODO ^

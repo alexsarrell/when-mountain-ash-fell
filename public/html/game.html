@@ -6,24 +6,26 @@
     <link rel="stylesheet" href="/css/game.css">
 </head>
 <body>
-<botton id="inventory" class="bronze" type="submit">
+<img id="locImg" src="" alt=""/>
+<button id="inventory" class="bronze" type="button">
     <img src="/images/static/inventory.png" alt="Инвентарь">
-</botton>
-<img src="/images/static/processed_image.png" id="textImg" alt="text">
-<form id="form">
-    <textarea id="action" class="scroll" placeholder="Я иду в таверну"></textarea>
-    <button type="submit" id="send-action">
-        <span class="corner-decoration corner-top-left"></span>
-        <span class="corner-decoration corner-top-right"></span>
-        <span class="corner-decoration corner-bottom-left"></span>
-        <span class="corner-decoration corner-bottom-right"></span>
-        Send
-    </button>
-</form>
-<div id="output"></div>
-<div class="images">
-    <img id="charImg" alt="character" />
-    <img id="locImg" alt="location" />
+</button>
+<button id="chat-toggle" class="bronze hidden" type="button">
+    <span style="font-size: 24px;">💬</span>
+</button>
+<div class="chat-container">
+    <div class="chat-collapse-btn"></div>
+    <div id="chat-messages" class="chat-messages"></div>
+    <form id="chat-form" class="chat-input-form">
+        <textarea id="action" placeholder="Опишите свое действие..." aria-label="Действие"></textarea>
+        <button type="submit" id="send-action">
+            <span class="corner-decoration corner-top-left"></span>
+            <span class="corner-decoration corner-top-right"></span>
+            <span class="corner-decoration corner-bottom-left"></span>
+            <span class="corner-decoration corner-bottom-right"></span>
+            Отправить
+        </button>
+    </form>
 </div>
 <div id="inventoryModal" class="modal">
     <div class="modal-content">
@@ -37,6 +39,19 @@
     <div id="CloseDialog">X</div>
     <div class="inventory-grid">
         <div id="inventory-portrait"></div>
+        <div class="equipment-slots">
+            <div class="equipment-slot" data-slot="helmet" title="Шлем"></div>
+            <div class="equipment-slot" data-slot="necklace" title="Медальон"></div>
+            <div class="equipment-slot" data-slot="armor" title="Броня"></div>
+            <div class="equipment-slot" data-slot="weapon1" title="Правая рука"></div>
+            <div class="equipment-slot" data-slot="weapon2" title="Левая рука"></div>
+            <div class="equipment-slot" data-slot="gloves" title="Перчатки"></div>
+            <div class="equipment-slot" data-slot="belt" title="Ремень"></div>
+            <div class="equipment-slot" data-slot="ring1" title="Кольцо 1"></div>
+            <div class="equipment-slot" data-slot="ring2" title="Кольцо 2"></div>
+            <div class="equipment-slot" data-slot="legs" title="Штаны"></div>
+            <div class="equipment-slot" data-slot="boots" title="Ботинки"></div>
+        </div>
         <div class="items-grid" id="inventoryGrid">
 
         </div>

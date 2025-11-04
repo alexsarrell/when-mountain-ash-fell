@@ -9,6 +9,7 @@ export interface PromptProperties {
     prompter: string;
     character: string;
     characterImage: string;
+    characterValidator: string;
   };
 }
 

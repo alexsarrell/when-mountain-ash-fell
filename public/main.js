@@ -7,7 +7,10 @@ function setCookie(name, value, path, maxAgeSec = 3600) {
 function getCookie(name) {
     const value = `; ${document.cookie}`
     const parts = value.split(`; ${name}=`)
-    if (parts.length === 2) return parts.pop().split(';').shift()
+    if (parts.length === 2) {
+        const encoded = parts.pop().split(';').shift()
+        return decodeURIComponent(encoded)
+    }
     return undefined
 }
 
@@ -21,7 +24,8 @@ window.onCharacterSpriteGenerate = async (payload) => {
         if (!res.ok) throw new Error('Image generation failed')
         const {imageUrl} = await res.json()
         if (imageUrl) {
-            setCookie('imageUrl', imageUrl, 3600)
+            const cleanUrl = imageUrl.replaceAll('%2F', '/')
+            setCookie('imageUrl', cleanUrl, 3600)
             const el = document.getElementById('portrait')
             if (el) {
                 el.innerHTML = ''
@@ -55,24 +59,7 @@ window.onCharacterCreation = async (body) => {
     }
 }
 
-window.onAction = async (body) => {
-    try {
-        const res = await fetch('/game/action', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(body)
-        })
-
-        const responseJson = await res.json()
-        document.getElementById('output').textContent = responseJson.narrative
-        document.getElementById('locImg').setAttribute('src', responseJson.locationImage);
-        document.getElementById('charImg').setAttribute('src', responseJson.characterImage);
-        console.log("response received", responseJson)
-        if (!res.ok) throw new Error('Action failed')
-    } catch (e) {
-        console.error(e)
-    }
-}
+// window.onAction moved to game.js to use addMessage function
 
 window.getInventory = async (body) => {
      try {
