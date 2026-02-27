@@ -131,19 +131,7 @@ export const CLASSES: GameClass[] = [
       agility: 1,
     },
     startingItems: ["scythe", "homespun_clothing"],
-  },
-  {
-    id: "lifeguard",
-    name: "Спасательница",
-    description: "",
-    baseStats: {
-      health: 90,
-      strength: 1,
-      intelligence: 0,
-      agility: 1,
-    },
-    startingItems: ["bikini", "water_pistol"],
-  },
+  }
 ];
 
 // ============================================
@@ -173,12 +161,6 @@ export const STARTING_ITEMS: Record<
     stats: { defense: 8 },
   },
 
-  bikini: {
-    name: "Узкое бикини",
-    type: "armor",
-    description: "Легкая броня",
-    stats: { defense: 20 },
-  },
   water_pistol: {
     name: "Водяной пистолет",
     type: "weapon",

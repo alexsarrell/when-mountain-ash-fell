@@ -43,6 +43,8 @@ export class GameService {
       characterId,
       actionLen: action?.length,
     });
+
+    // Выгружаем из монгодб объект персонажа по characterId
     const character = await this.characterService.getCharacter(characterId);
     if (!character) {
       const err: any = new Error("Hero not found");
@@ -50,11 +52,14 @@ export class GameService {
       throw err;
     }
     console.log("svc: character loaded", { id: characterId });
+
+    // Выгружаем из монгодб объект game state (текущую локацию, историю локаций, нпс на ней и другая инфа)
     const gameState = await this.characterService.getGameState(characterId);
     console.log("svc: gameState loaded", {
       location: gameState.currentLocation,
     });
 
+    // Получили ответ от LLM
     const storyResponse: StoryResponse = await this.storyAgent.processAction(
       action,
       character,
@@ -67,21 +72,25 @@ export class GameService {
       items: storyResponse.itemState?.itemsFound?.length || 0,
     });
 
+    // Так, пришла ли в ответе LLM инфомация о новых полученных предметах?
     if (storyResponse.itemState?.itemsFound?.length) {
+        // Да, пришла, обновляем инвентарь персонажа
       character.inventory = this.characterService.mergeItems(
         character.inventory,
         storyResponse.itemState.itemsFound,
       );
     }
 
+    // Так, пришла ли в ответе LLM инфомация о потерянных предметах предметах?
     if (storyResponse.itemState?.itemsLost?.length) {
+
       const lostIds = new Set(
         (storyResponse.itemState.itemsLost as Item[]).map((i: Item) => i.id),
       );
       character.inventory = character.inventory.filter(
         (i: Item) => !lostIds.has(i.id),
       );
-
+    // Да, пришла, обновляем инвентарь персонажа
       for (const slot in character.equipment) {
         const equippedItem =
           character.equipment[slot as keyof CharacterEquipment];
@@ -100,6 +109,7 @@ export class GameService {
     } as Location;
     console.log("New location achieved", storyResponse.location);
 
+    // отправляем на фронтенд текстовое описание
     emit({
       type: "narrative",
       narrative: storyResponse.narrative,
@@ -107,15 +117,20 @@ export class GameService {
       locationDescription: storyResponse.locationDescription,
     });
 
+    // сохраняем историю в объект gameState
     gameState.history.push({
       action,
       response: JSON.stringify(storyResponse),
       timestamp: new Date(),
     });
 
+    // Сохраняем обновлённого персонажа (с изменённым инвентарём) в MongoDB
     await this.characterService.updateCharacter(character);
+
+    // Сохраняем обновлённый GameState в MongoDB
     await this.characterService.saveGameState(gameState);
 
+    // Тут генерируем картинки и по готовности отдаём их во фронтенд
     await Promise.all([
       (async () => {
         try {
